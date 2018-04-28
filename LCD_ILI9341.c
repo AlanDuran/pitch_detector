@@ -183,32 +183,53 @@ void LCD_ILI9341_init(void)
 	/**Exit sleep*/
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, CMD_SLPOUT);
-	LCD_ILI9341_delay();LCD_ILI9341_delay();
+	LCD_ILI9341_delay();
 	/**Display on*/
 	SPI_sendOneByte(SPI_0, CMD_DISPON);
-	LCD_ILI9341_delay();LCD_ILI9341_delay();
-	GPIO_setPIN(GPIO_D, CS_PIN);
+	LCD_ILI9341_delay();
 	SPI_stopTranference(SPI_0);
 
-	LCD_delay();LCD_delay();LCD_delay();LCD_delay();
-	SPI_startTranference(SPI_0);
-	GPIO_clearPIN(GPIO_D, CS_PIN);
-	SPI_sendOneByte(SPI_0, 0x28);
-	GPIO_setPIN(GPIO_D, CS_PIN);
-		SPI_stopTranference(SPI_0);
-		uint16 d = 0;
-		for(d= 0; d<1000;d++)
-		{
-			LCD_delay();
-		}
-		SPI_startTranference(SPI_0);
-		GPIO_clearPIN(GPIO_D, CS_PIN);
-		SPI_sendOneByte(SPI_0, CMD_DISPON);
-		GPIO_setPIN(GPIO_D, CS_PIN);
-			SPI_stopTranference(SPI_0);
+	LCD_ILI9341_fillScreen(ILI9341_BLACK);
 }
 
-void LCD_ILI9341_writeColor(uint8 DataOrCmd, uint16 data)
+void LCD_ILI9341_fillScreen(uint16 color)
+{
+	uint32 index;
+
+	SPI_startTranference(SPI_0);
+	GPIO_clearPIN(GPIO_D, CS_PIN);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_CASET);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, FALSE);
+	SPI_sendOneByte(SPI_0, FALSE);
+	SPI_sendOneByte(SPI_0, FALSE);
+	SPI_sendOneByte(SPI_0, CA_LIMIT);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_PASET);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, FALSE);
+	SPI_sendOneByte(SPI_0, FALSE);
+	SPI_sendOneByte(SPI_0, PA_LIMIT1);
+	SPI_sendOneByte(SPI_0, PA_LIMIT2);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_RAMWR);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
+
+	for(index = FALSE; index < SCREEN_SIZE; index++)
+	{
+		SPI_sendOneByte(SPI_0, color >> COLOR_SHIFT);
+		SPI_sendOneByte(SPI_0, color & COLOR_MASK);
+	}
+
+	GPIO_setPIN(GPIO_D, CS_PIN);
+	SPI_stopTranference(SPI_0);
+}
+
+void LCD_ILI9341_writeColor(uint16 x, uint16 y, uint16 data)
 {
 	/**Configure the DATA_OR_CMD PIN*/
 	if(DataOrCmd)

@@ -14,7 +14,7 @@
 #include "LCD_ILI9341.h"
 
 #define SYSTEM_CLOCK 21000000
-#define DELAY_900MS .2
+#define DELAY_900MS 5
 
 const SPI_ConfigType SPI_Config = {
 		SPI_DISABLE_FIFO,
@@ -40,11 +40,16 @@ int main(void)
 	EnableInterrupts;
 	PIT_delay(PIT_0,SYSTEM_CLOCK / 2,DELAY_900MS);
 
+	uint16 i;
 	while(TRUE)
 	{
 		if(PIT_getIRQStatus(PIT_0))
-		LCD_ILI9341_writeColor(LCD_DATA, 0x57A5);
+		{
+			LCD_ILI9341_fillScreen(i);
+			PIT_clearIRQStatus(PIT_0);
+		}
 
+		i++;
 	}
 }
 

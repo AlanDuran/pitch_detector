@@ -16,6 +16,7 @@
 #define SCREENH 240
 #define LCD_X 320
 #define LCD_Y 240
+#define SCREEN_SIZE 76800
 
 /**SPI configuration*/
 #define LCD_DATA 1
@@ -114,6 +115,37 @@
 #define DATA13_GMCTRN1 0x36
 #define DATA14_GMCTRN1 0x0F
 
+/**Write to RAM*/
+#define CMD_CASET      0x2A
+#define CMD_PASET      0x2B
+#define CMD_RAMWR      0x2C
+
+/**Fill screen*/
+#define CA_LIMIT 0xEF
+#define PA_LIMIT1 0x1
+#define PA_LIMIT2 0x3F
+
+/**Colors*/
+#define ILI9341_BLACK       0x0000      /*   0,   0,   0 */
+#define ILI9341_NAVY        0x000F      /*   0,   0, 128 */
+#define ILI9341_DARKGREEN   0x03E0      /*   0, 128,   0 */
+#define ILI9341_DARKCYAN    0x03EF      /*   0, 128, 128 */
+#define ILI9341_MAROON      0x7800      /* 128,   0,   0 */
+#define ILI9341_PURPLE      0x780F      /* 128,   0, 128 */
+#define ILI9341_OLIVE       0x7BE0      /* 128, 128,   0 */
+#define ILI9341_LIGHTGREY   0xC618      /* 192, 192, 192 */
+#define ILI9341_DARKGREY    0x7BEF      /* 128, 128, 128 */
+#define ILI9341_BLUE        0x001F      /*   0,   0, 255 */
+#define ILI9341_GREEN       0x07E0      /*   0, 255,   0 */
+#define ILI9341_CYAN        0x07FF      /*   0, 255, 255 */
+#define ILI9341_RED         0xF800      /* 255,   0,   0 */
+#define ILI9341_MAGENTA     0xF81F      /* 255,   0, 255 */
+#define ILI9341_YELLOW      0xFFE0      /* 255, 255,   0 */
+#define ILI9341_WHITE       0xFFFF      /* 255, 255, 255 */
+#define ILI9341_ORANGE      0xFD20      /* 255, 165,   0 */
+#define ILI9341_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
+#define ILI9341_PINK        0xF81F
+
 /**Send data*/
 #define COLOR_SHIFT 8
 #define COLOR_MASK 0xF
@@ -121,9 +153,12 @@
 /** \brief It configures the LCD*/
 void LCD_ILI9341_init(void);
 
+/** \brief Writes a given color in every pixel*/
+void LCD_ILI9341_fillScreen(uint16 color);
+
 /** \brief It writes a byte in the LCD memory. The place of writting is the last place that was indicated by LCDNokia_gotoXY. In the reset state
  * the initial place is x=0 y=0*/
-void LCD_ILI9341_writeColor(uint8, uint16);
+void LCD_ILI9341_writeColor(uint16, uint16, uint16);
 
 /** \brief generates a delay with a blocking for function
  *
