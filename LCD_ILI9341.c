@@ -231,17 +231,36 @@ void LCD_ILI9341_fillScreen(uint16 color)
 
 void LCD_ILI9341_writeColor(uint16 x, uint16 y, uint16 data)
 {
-	/**Configure the DATA_OR_CMD PIN*/
-	if(DataOrCmd)
-		GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
-	else
-		GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	uint32 newX = (x << GOTO_XY_SHIFT16) | x;
+	uint32 newY = (y << GOTO_XY_SHIFT16) | y;
 
-	/**Sends data*/
+	/**Configure the DATA_OR_CMD PIN*/
+
 	SPI_startTranference(SPI_0);
 	GPIO_clearPIN(GPIO_D, CS_PIN);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_CASET);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, newX >> GOTO_XY_SHIFT24);
+	SPI_sendOneByte(SPI_0, (newX >> GOTO_XY_SHIFT16) & COLOR_MASK);
+	SPI_sendOneByte(SPI_0, (newX >> COLOR_SHIFT) & COLOR_MASK);
+	SPI_sendOneByte(SPI_0, newX & COLOR_MASK);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_PASET);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, newY >> GOTO_XY_SHIFT24);
+	SPI_sendOneByte(SPI_0, (newY >> GOTO_XY_SHIFT16) & COLOR_MASK);
+	SPI_sendOneByte(SPI_0, (newY >> COLOR_SHIFT) & COLOR_MASK);
+	SPI_sendOneByte(SPI_0, newY & COLOR_MASK);
+
+	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	SPI_sendOneByte(SPI_0, CMD_RAMWR);
+	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, data >> COLOR_SHIFT);
 	SPI_sendOneByte(SPI_0, data & COLOR_MASK);
+
 	GPIO_setPIN(GPIO_D, CS_PIN);
 	SPI_stopTranference(SPI_0);
 }

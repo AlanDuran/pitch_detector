@@ -40,16 +40,32 @@ int main(void)
 	EnableInterrupts;
 	PIT_delay(PIT_0,SYSTEM_CLOCK / 2,DELAY_900MS);
 
-	uint16 i;
+	uint16 i, x, y;
+
+	LCD_ILI9341_writeColor(120, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(121, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(122, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(123, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(124, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(125, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(126, 160, 0xFFFF);
+	LCD_ILI9341_writeColor(100, 180, 0xFFFF);
+	LCD_ILI9341_writeColor(100, 181, 0xFFFF);
+	LCD_ILI9341_writeColor(100, 182, 0xFFFF);
+	LCD_ILI9341_writeColor(100, 183, 0xFFFF);
+	LCD_ILI9341_writeColor(100, 184, 0xFFFF);
+
 	while(TRUE)
 	{
 		if(PIT_getIRQStatus(PIT_0))
 		{
-			LCD_ILI9341_fillScreen(i);
+			LCD_ILI9341_writeColor(x, y, i);
 			PIT_clearIRQStatus(PIT_0);
 		}
 
 		i++;
+		x = (x + 1) % 240;
+		y = (y + 1) % 320;
 	}
 }
 

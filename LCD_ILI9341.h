@@ -148,7 +148,9 @@
 
 /**Send data*/
 #define COLOR_SHIFT 8
-#define COLOR_MASK 0xF
+#define COLOR_MASK 0xFF
+#define GOTO_XY_SHIFT16 16
+#define GOTO_XY_SHIFT24 24
 
 /** \brief It configures the LCD*/
 void LCD_ILI9341_init(void);
