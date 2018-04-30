@@ -12,11 +12,13 @@
 #include "SPI.h"
 
 /**Screen size*/
-#define SCREENW 320
-#define SCREENH 240
-#define LCD_X 320
-#define LCD_Y 240
+#define ILI_LCD_X 320
+#define ILI_LCD_Y 240
 #define SCREEN_SIZE 76800
+#define X_CHAR_LIMIT 6
+#define Y_CHAR_LIMIT 8
+#define X_BIGCHAR_LIMIT 15
+#define Y_BIGCHAR_LIMIT 16
 
 /**SPI configuration*/
 #define LCD_DATA 1
@@ -122,8 +124,7 @@
 
 /**Fill screen*/
 #define CA_LIMIT 0xEF
-#define PA_LIMIT1 0x1
-#define PA_LIMIT2 0x3F
+#define PA_LIMIT 0x13F
 
 /**Colors*/
 #define ILI9341_BLACK       0x0000      /*   0,   0,   0 */
@@ -146,11 +147,19 @@
 #define ILI9341_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
 #define ILI9341_PINK        0xF81F
 
-/**Send data*/
+/**Data for graphics*/
 #define COLOR_SHIFT 8
 #define COLOR_MASK 0xFF
 #define GOTO_XY_SHIFT16 16
 #define GOTO_XY_SHIFT24 24
+#define TEXT_SIZE 15
+#define HALF_TEXT_SIZE 8
+#define P_SIZE 150
+#define PGEN_OFFSET 135
+#define P1_OFFSET 52
+#define P2_OFFSET 53
+
+
 
 /** \brief It configures the LCD*/
 void LCD_ILI9341_init(void);
@@ -158,13 +167,24 @@ void LCD_ILI9341_init(void);
 /** \brief Writes a given color in every pixel*/
 void LCD_ILI9341_fillScreen(uint16 color);
 
+void LCD_ILI9341_drawNLines(uint16, uint16, uint16);
+
+void LCD_ILI9341_gotoXY(uint32, uint32);
+
+void LCD_ILI9341_drawShape(uint16, uint16, uint16, uint16, uint16);
+
 /** \brief It writes a byte in the LCD memory. The place of writting is the last place that was indicated by LCDNokia_gotoXY. In the reset state
  * the initial place is x=0 y=0*/
 void LCD_ILI9341_writeColor(uint16, uint16, uint16);
 
+void LCD_ILI9341_writeBigLetter(uint16 x, uint16 y, uint16 color, uint8 letter);
+
+void LCD_ILI9341_writeLetter(uint16 x, uint16 y, uint16 color, uint8 letter);
 /** \brief generates a delay with a blocking for function
  *
  * It is used in the initialization routine*/
 void LCD_ILI9341_delay(void);
+
+void LCD_ILI9341_drawPartiture(uint8);
 
 #endif /* LCD_ILI9341_H_ */

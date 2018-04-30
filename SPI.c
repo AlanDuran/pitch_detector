@@ -271,6 +271,7 @@ void SPI_startTranference(SPI_ChannelType channel)
 		break;
 	}
 }
+
 /*It stops the SPI transmission by modifying the value of HALT bit*/
 void SPI_stopTranference(SPI_ChannelType channel)
 {

@@ -14,7 +14,7 @@
 #include "LCD_ILI9341.h"
 
 #define SYSTEM_CLOCK 21000000
-#define DELAY_900MS 5
+#define DELAY_900MS 1
 
 const SPI_ConfigType SPI_Config = {
 		SPI_DISABLE_FIFO,
@@ -40,32 +40,38 @@ int main(void)
 	EnableInterrupts;
 	PIT_delay(PIT_0,SYSTEM_CLOCK / 2,DELAY_900MS);
 
-	uint16 i, x, y;
+	LCD_ILI9341_drawPartiture(TRUE);
+	LCD_ILI9341_drawPartiture(FALSE);
 
-	LCD_ILI9341_writeColor(120, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(121, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(122, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(123, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(124, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(125, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(126, 160, 0xFFFF);
-	LCD_ILI9341_writeColor(100, 180, 0xFFFF);
-	LCD_ILI9341_writeColor(100, 181, 0xFFFF);
-	LCD_ILI9341_writeColor(100, 182, 0xFFFF);
-	LCD_ILI9341_writeColor(100, 183, 0xFFFF);
-	LCD_ILI9341_writeColor(100, 184, 0xFFFF);
+	uint16 color = ILI9341_GREENYELLOW;
+	uint8 nShape = 3;
+
+	LCD_ILI9341_writeBigLetter(0,0,0xFF,0);
+	LCD_ILI9341_writeLetter(17,7,0xFF,'L');
+	LCD_ILI9341_writeBigLetter(25,0,0xFF,0);
+	LCD_ILI9341_writeLetter(40,7,0xFF,'N');
 
 	while(TRUE)
 	{
 		if(PIT_getIRQStatus(PIT_0))
 		{
-			LCD_ILI9341_writeColor(x, y, i);
+			nShape = (nShape + 1) % 4;
+
+			if(nShape != 3)
+			{
+				LCD_ILI9341_drawShape(60 + nShape *35, 305, 74 + nShape *35, 319, color);
+			}
+
+			else
+			{
+				LCD_ILI9341_drawNLines(305, 14, ILI9341_CYAN);
+			}
+
 			PIT_clearIRQStatus(PIT_0);
+
 		}
 
-		i++;
-		x = (x + 1) % 240;
-		y = (y + 1) % 320;
+		color++;
 	}
 }
 
