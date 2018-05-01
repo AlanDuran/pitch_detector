@@ -18,6 +18,9 @@
 #define LIMIT 0xFF
 #define SHIFT 8
 
+float32 noteBuffer[MAX_SAMPLES];
+float32 buffer[MAX_SAMPLES];
+
 void ADC0_IRQHandler()
 {
 	//If the value is greater than [something], start saving values
@@ -30,7 +33,15 @@ void ADC0_IRQHandler()
 	/** If saving, save*/
 	if(TRUE == DSP_getSavingFlag())
 	{
-		DSP_saveNote(ADC0_readValue());		//If note is detected, saves it
+		DSP_saveNote(ADC0_readValue(), noteBuffer);		//If note is detected, saves it
+		if(FALSE == DSP_getSavingFlag())
+		{
+			DSP_autocor(noteBuffer, buffer);
+			uint16 pitch = DSP_detectPeak(buffer);
+			float32 f0 = DSP_findPitch(pitch);
+			float32 breakpoint;
+			breakpoint = f0;
+		}
 	}
 
 }
