@@ -18,8 +18,8 @@
 #define LIMIT 0xFF
 #define SHIFT 8
 
-float32 noteBuffer[MAX_SAMPLES];
-float32 buffer[MAX_SAMPLES];
+float32 noteBuffer[MAX_SAMPLES] = {0};
+float32 buffer[MAX_SAMPLES] = {0};
 
 void ADC0_IRQHandler()
 {
@@ -41,6 +41,10 @@ void ADC0_IRQHandler()
 			float32 f0 = DSP_findPitch(pitch);
 			float32 breakpoint;
 			breakpoint = f0;
+			for(uint16 index = 0; index < MAX_SAMPLES; index++)
+			{
+				buffer[index] = 0;
+			}
 		}
 	}
 

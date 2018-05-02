@@ -20,7 +20,7 @@ uint8 savingData_flag;
 
 float32 DSP_digToFloat(uint16 data)
 {
-	return (data*SUPPLY_V/RES_16_BIT) - (SUPPLY_V/2); 	/** Multiplies by supply voltage and divides by pow(2,16) - 1*/
+	return (data*SUPPLY_V/RES_16_BIT) - SUPPLY_V/2; 	/** Multiplies by supply voltage and divides by pow(2,16) - 1*/
 }
 
 uint8 DSP_checkAttack(uint16 data)
@@ -57,7 +57,7 @@ void DSP_autocor(float32 * noteBuffer, float32 * corrBuffer)
 	/** Autocorrelation formula */
 	for(lag_index = 0; lag_index < MAX_SAMPLES; lag_index++)
 	{
-		for(sample_index = 0; sample_index < MAX_SAMPLES; sample_index++)
+		for(sample_index = 0; sample_index < MAX_SAMPLES - lag_index; sample_index++)
 		{
 			if(sample_index - lag_index > 0)
 			{
