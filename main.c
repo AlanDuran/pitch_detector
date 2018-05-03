@@ -15,6 +15,7 @@
 #include "ADC.h"
 #include "NVIC.h"
 #include "FLEX.h"
+#include "MCG.h"
 
 #define ADC_channel 12
 
@@ -31,10 +32,10 @@ const ADC_ConfigType ADC_Config = {
 
 int main(void)
 {
+	fbe_pbe(CLK_FREQ_HZ,PLL0_PRDIV,PLL0_VDIV);
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
 	FLEX_init();
 	ADC0_init(&ADC_Config);
-	uint8 i = 'z';
 	EnableInterrupts;
 	for(;;)
 	{

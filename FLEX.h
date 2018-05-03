@@ -17,7 +17,9 @@
 #include "DataTypeDefinitions.h"
 #include "GPIO.h"
 
-#define SAMPLE_FS 88330 /** Sample frequency, change every time you change mod or ps*/
+#define CLK_FREQ_HZ 30000000
+//#define SAMPLE_FS 44642.85714f /** Sample frequency, change every time you change mod or ps*/
+#define SAMPLE_FS 85403.7267f
 #define FLEX_TIMER_0_CLOCK_GATING 0x01000000
 
 #define FLEX_TIMER_FAULTIE  0x80

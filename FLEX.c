@@ -19,7 +19,7 @@
 
 
 #define MINIMUM_DECRE 12
-#define MOD_4_ADC 0x1d //+ps128 ~~ 2.5KHz
+#define MOD_4_ADC 0x40 //+ps128 ~~ 2.5KHz
 #define ADC_CHANNEL 12
 #define DEC 10
 

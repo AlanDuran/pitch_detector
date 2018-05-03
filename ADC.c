@@ -40,8 +40,6 @@ void ADC0_IRQHandler()
 			uint16 pitch = DSP_detectPeak(autoCorBuffer);
 			float32 f0 = DSP_findPitch(pitch);
 			DSP_clearBuffer(autoCorBuffer);
-			uint16 intf0 = f0;
-			printf("%.6f\n", f0);
 		}
 	}
 
