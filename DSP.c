@@ -17,6 +17,34 @@ float32 secondBuffer[MAX_SAMPLES];
 uint16 noteBufferPointer;
 
 uint8 savingData_flag;
+uint8 autoCorCo_flag = TRUE;
+
+const DSP_note_type Notes[22] =
+		{
+				{C4, 0},
+				{CS4, 1},
+				{D4, 0},
+				{DS4, 1},
+				{E4, 0},
+				{F4, 0},
+				{FS4, 1},
+				{G4, 0},
+				{GS4, 1},
+				{A4, 0},
+				{AS4, 1},
+				{B4, 0},
+				{C5, 0},
+				{CS5, 1},
+				{D5, 0},
+				{DS5, 1},
+				{E5, 0},
+				{F5, 0},
+				{FS5, 1},
+				{G5, 0},
+				{GS5, 1},
+				{A5, 0},
+
+		};
 
 float32 DSP_digToFloat(uint16 data)
 {
@@ -53,6 +81,7 @@ void DSP_autocor(float32 * noteBuffer, float32 * corrBuffer)
 {
 	uint16 lag_index;
 	uint16 sample_index;
+	autoCorCo_flag = FALSE;
 
 	/** Autocorrelation formula */
 	for(lag_index = 0; lag_index < MAX_SAMPLES; lag_index++)
@@ -65,6 +94,8 @@ void DSP_autocor(float32 * noteBuffer, float32 * corrBuffer)
 			}
 		}
 	}
+
+	autoCorCo_flag = TRUE;
 }
 
 uint16 DSP_detectPeak(float32 * corrBuffer)
@@ -95,11 +126,30 @@ uint16 DSP_detectPeak(float32 * corrBuffer)
 	return pitch_period;
 }
 
+void DSP_findNote()
+{
+
+}
+
+void DSP_clearBuffer(float32 * buffer)
+{
+	for(uint16 index = 0; index < MAX_SAMPLES; index++)
+	{
+		buffer[index] = FALSE;
+	}
+}
+
 float32 DSP_findPitch(uint16 pitch_period)
 {
 	return SAMPLE_FS/pitch_period;
 }
 
-uint8 DSP_getSavingFlag(){
+uint8 DSP_getSavingFlag()
+{
 	return savingData_flag;
+}
+
+uint8 DSP_getAutoCorFlag()
+{
+	return autoCorCo_flag;
 }

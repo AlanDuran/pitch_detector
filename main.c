@@ -34,7 +34,7 @@ int main(void)
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
 	FLEX_init();
 	ADC0_init(&ADC_Config);
-
+	uint8 i = 'z';
 	EnableInterrupts;
 	for(;;)
 	{

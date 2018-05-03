@@ -19,32 +19,29 @@
 #define SHIFT 8
 
 float32 noteBuffer[MAX_SAMPLES] = {0};
-float32 buffer[MAX_SAMPLES] = {0};
+float32 autoCorBuffer[MAX_SAMPLES] = {0};
 
 void ADC0_IRQHandler()
 {
 	//If the value is greater than [something], start saving values
 	/** If not saving, check if it should save*/
-	if(FALSE == DSP_getSavingFlag())
+	if(FALSE == DSP_getSavingFlag() && TRUE == DSP_getAutoCorFlag())
 	{
 		DSP_checkAttack(ADC0_readValue());	//Detects
 	}
 
 	/** If saving, save*/
-	if(TRUE == DSP_getSavingFlag())
+	if(TRUE == DSP_getSavingFlag() && TRUE == DSP_getAutoCorFlag())
 	{
 		DSP_saveNote(ADC0_readValue(), noteBuffer);		//If note is detected, saves it
 		if(FALSE == DSP_getSavingFlag())
 		{
-			DSP_autocor(noteBuffer, buffer);
-			uint16 pitch = DSP_detectPeak(buffer);
+			DSP_autocor(noteBuffer, autoCorBuffer);
+			uint16 pitch = DSP_detectPeak(autoCorBuffer);
 			float32 f0 = DSP_findPitch(pitch);
-			float32 breakpoint;
-			breakpoint = f0;
-			for(uint16 index = 0; index < MAX_SAMPLES; index++)
-			{
-				buffer[index] = 0;
-			}
+			DSP_clearBuffer(autoCorBuffer);
+			uint16 intf0 = f0;
+			printf("%.6f\n", f0);
 		}
 	}
 
