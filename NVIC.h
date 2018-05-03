@@ -135,3 +135,4 @@ void NVIC_enableInterruptAndPriotity(InterruptType interruptNumber, PriorityLeve
 void NVIC_setBASEPRI_threshold(PriorityLevelType priority);
 
 #endif /* NVIC_H_ */
+

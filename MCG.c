@@ -5,8 +5,8 @@
  * Assumes the MCG mode is in the default FEI mode out of reset
  */
 
-
 #include "MCG.h"
+
 #include "MK64F12.h"
 
 

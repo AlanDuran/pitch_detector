@@ -47,7 +47,6 @@
 #define PLL0_PRDIV 25    /* PLL predivider value */
 #define PLL0_VDIV 30    /* PLL multiplier value*/
 
-
 unsigned char fll_rtc_init(unsigned char, unsigned char);
 
 
