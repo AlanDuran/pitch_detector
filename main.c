@@ -16,6 +16,7 @@
 #include "NVIC.h"
 #include "FLEX.h"
 #include "MCG.h"
+#include "PIT.h"
 
 #define ADC_channel 12
 
@@ -34,6 +35,8 @@ int main(void)
 {
 	fbe_pbe(CLK_FREQ_HZ,PLL0_PRDIV,PLL0_VDIV);
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
+	PIT_clockGating();
+	PIT_enable();
 	FLEX_init();
 	ADC0_init(&ADC_Config);
 	EnableInterrupts;

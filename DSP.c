@@ -6,6 +6,7 @@
  */
 
 #include "DSP.h"
+#include "PIT.h"
 
 
 #define RES_16_BIT 65535
@@ -17,34 +18,10 @@ float32 secondBuffer[MAX_SAMPLES];
 uint16 noteBufferPointer;
 
 uint8 savingData_flag;
+uint8 checkingTime_flag;
 uint8 autoCorCo_flag = TRUE;
 
-const DSP_note_type Notes[22] =
-		{
-				{C4, 0},
-				{CS4, 1},
-				{D4, 0},
-				{DS4, 1},
-				{E4, 0},
-				{F4, 0},
-				{FS4, 1},
-				{G4, 0},
-				{GS4, 1},
-				{A4, 0},
-				{AS4, 1},
-				{B4, 0},
-				{C5, 0},
-				{CS5, 1},
-				{D5, 0},
-				{DS5, 1},
-				{E5, 0},
-				{F5, 0},
-				{FS5, 1},
-				{G5, 0},
-				{GS5, 1},
-				{A5, 0},
 
-		};
 
 float32 DSP_digToFloat(uint16 data)
 {
@@ -59,6 +36,8 @@ uint8 DSP_checkAttack(uint16 data)
 	if(TRUE == isAttack)
 	{
 		savingData_flag = TRUE;
+		/** Start pit to count the time */
+
 	}
 	return isAttack;
 }
@@ -69,7 +48,7 @@ void DSP_saveNote(uint16 data, float32 * noteBuffer)
 	noteBuffer[noteBufferPointer] = DSP_digToFloat(data);
 	noteBufferPointer++;
 
-	/** If the sampling is done, reinitialize pointer and turn off flag*/
+	/** If the sampling is done, reinitialize pointer and turn off flag to sample*/
 	if(MAX_SAMPLES == noteBufferPointer)
 	{
 		noteBufferPointer = FALSE;
@@ -77,7 +56,7 @@ void DSP_saveNote(uint16 data, float32 * noteBuffer)
 	}
 }
 
-void DSP_autocor(float32 * noteBuffer, float32 * corrBuffer)
+void DSP_autocor(float32 * noteBuffer, float32* corrBuffer)
 {
 	uint16 lag_index;
 	uint16 sample_index;
@@ -126,10 +105,6 @@ uint16 DSP_detectPeak(float32 * corrBuffer)
 	return pitch_period;
 }
 
-void DSP_findNote()
-{
-
-}
 
 void DSP_clearBuffer(float32 * buffer)
 {
