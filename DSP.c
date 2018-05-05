@@ -11,7 +11,7 @@
 
 #define RES_16_BIT 65535
 #define SUPPLY_V 3.3f
-#define ATTACK_THRESH .55f
+#define ATTACK_THRESH .40f
 
 
 float32 secondBuffer[MAX_SAMPLES];

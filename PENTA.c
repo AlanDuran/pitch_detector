@@ -15,9 +15,16 @@
 #define AVG_MAX_SAMPLES 100
 #define NO_NOTE_THRESH 0.1f /** To be calibrated */
 
+/**
+ * 	Some notes on printing on the screen:
+ *
+ * 	First penta starts on y 40, in between lines there is a diff of 15
+ */
+
 uint8 timeCounter;
 uint8 checkTimeCounter;
 float32 avgData;
+uint8 tempoCounter;
 static uint8 checkingTime_flag;
 
 /**
@@ -32,28 +39,28 @@ static ToBePlayedNote_type nextNote[4];
 
 const PENTA_note_type Notes[MAX_NOTES] =
 		{
-				{C_4, 0, 0, DIFF1/2 - CONSTAT_SUB},
-				{CS4, 1, 0, DIFF2/2 - CONSTAT_SUB},
-				{D4, 0, 0, DIFF3/2 - CONSTAT_SUB},
-				{DS4, 1, 0, DIFF4/2 - CONSTAT_SUB},
-				{E4, 0, 0, DIFF5/2 - CONSTAT_SUB},
-				{F4, 0, 0, DIFF6/2 - CONSTAT_SUB},
-				{FS4, 1, 0, DIFF7/2 - CONSTAT_SUB},
-				{G4, 0, 0, DIFF8/2 - CONSTAT_SUB},
-				{GS4, 1, 0, DIFF9/2 - CONSTAT_SUB},
-				{A4, 0, 0, DIFF10/2 - CONSTAT_SUB},
-				{AS4, 1, 0, DIFF11/2 - CONSTAT_SUB},
-				{B4, 0, 0, DIFF12/2 - CONSTAT_SUB},
-				{C_5, 0, 0, DIFF13/2 - CONSTAT_SUB},
-				{CS5, 1, 0, DIFF14/2 - CONSTAT_SUB},
-				{D5, 0, 0, DIFF15/2 - CONSTAT_SUB},
-				{DS5, 1, 0, DIFF16/2 - CONSTAT_SUB},
-				{E5, 0, 0, DIFF17/2 - CONSTAT_SUB},
-				{F5, 0, 0, DIFF18/2 - CONSTAT_SUB},
-				{FS5, 1, 0, DIFF19/2 - CONSTAT_SUB},
-				{G5, 0, 0, DIFF20/2 - CONSTAT_SUB},
-				{GS5, 1, 0, DIFF21/2 - CONSTAT_SUB},
-				{A5, 0, 0, DIFF22/2 - CONSTAT_SUB},
+				{C_4, 0, 115, DIFF1/2 - CONSTAT_SUB},
+				{CS4, 1, 115, DIFF2/2 - CONSTAT_SUB},
+				{D4, 0, 108, DIFF3/2 - CONSTAT_SUB},
+				{DS4, 1, 108, DIFF4/2 - CONSTAT_SUB},
+				{E4, 0, 100, DIFF5/2 - CONSTAT_SUB},
+				{F4, 0, 93, DIFF6/2 - CONSTAT_SUB},
+				{FS4, 1, 93, DIFF7/2 - CONSTAT_SUB},
+				{G4, 0, 85, DIFF8/2 - CONSTAT_SUB},
+				{GS4, 1, 85, DIFF9/2 - CONSTAT_SUB},
+				{A4, 0, 78, DIFF10/2 - CONSTAT_SUB},
+				{AS4, 1, 78, DIFF11/2 - CONSTAT_SUB},
+				{B4, 0, 70, DIFF12/2 - CONSTAT_SUB},
+				{C_5, 0, 63, DIFF13/2 - CONSTAT_SUB},
+				{CS5, 1, 63, DIFF14/2 - CONSTAT_SUB},
+				{D5, 0, 55, DIFF15/2 - CONSTAT_SUB},
+				{DS5, 1, 55, DIFF16/2 - CONSTAT_SUB},
+				{E5, 0, 48, DIFF17/2 - CONSTAT_SUB},
+				{F5, 0, 40, DIFF18/2 - CONSTAT_SUB},
+				{FS5, 1, 40, DIFF19/2 - CONSTAT_SUB},
+				{G5, 0, 33, DIFF20/2 - CONSTAT_SUB},
+				{GS5, 1, 33, DIFF21/2 - CONSTAT_SUB},
+				{A5, 0, 25, DIFF22/2 - CONSTAT_SUB},
 
 		};
 
@@ -163,6 +170,11 @@ sint8 PENTA_findNote(float32 freq)
 		if (((diff_greater > 0) && (diff_greater < Notes[index].diff)) ||
 				((diff_lesser > 0) && (diff_lesser < Notes[index].diff)))
 		{
+			if(tempoCounter == 16)
+			{
+				tempoCounter = FALSE;
+			}
+			tempoCounter++;
 			return Notes[index].id;
 		}
 	}
@@ -175,4 +187,7 @@ uint8 PENTA_getCheckingTimeFlag()
 	return checkingTime_flag;
 }
 
-
+uint8 PENTA_getTempoCounterPosition()
+{
+	return (tempoCounter - 1)*14;
+}

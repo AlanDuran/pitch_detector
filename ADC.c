@@ -15,6 +15,8 @@
 #include "GPIO.h"
 #include "NVIC.h"
 #include "DSP.h"
+#include "PENTA.h"
+#include "LCD_ILI9341.h"
 #define LIMIT 0xFF
 #define SHIFT 8
 
@@ -40,6 +42,11 @@ void ADC0_IRQHandler()
 			uint16 pitch = DSP_detectPeak(autoCorBuffer);
 			float32 f0 = DSP_findPitch(pitch);
 			DSP_clearBuffer(autoCorBuffer);
+
+			/** Find y position of note */
+			uint8 nota = PENTA_findNote(f0);
+			uint8 posX = PENTA_getTempoCounterPosition();
+			LCD_ILI9341_writeBigLetter(posX, nota, 0, WHITE);
 		}
 	}
 

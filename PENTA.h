@@ -105,4 +105,6 @@ void PENTA_startTimeMeassure();
 
 void PENTA_stopTimeMeassure();
 
+uint8 PENTA_getTempoCounterPosition();
+
 #endif /* PENTA_H_ */
