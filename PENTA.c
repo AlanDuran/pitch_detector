@@ -7,6 +7,7 @@
 
 #include "PENTA.h"
 #include "DSP.h"
+#include "PIT.h"
 
 #define MAX_NOTES 22
 #define SYSTEM_CLOCK 30000000
@@ -17,7 +18,7 @@
 uint8 timeCounter;
 uint8 checkTimeCounter;
 float32 avgData;
-uint8 checkingTime_flag;
+static uint8 checkingTime_flag;
 
 /**
  * 	Will have a buffer of two in case we need the extra space.
@@ -31,7 +32,7 @@ static ToBePlayedNote_type nextNote[4];
 
 const PENTA_note_type Notes[MAX_NOTES] =
 		{
-				{C4, 0, 0, DIFF1/2 - CONSTAT_SUB},
+				{C_4, 0, 0, DIFF1/2 - CONSTAT_SUB},
 				{CS4, 1, 0, DIFF2/2 - CONSTAT_SUB},
 				{D4, 0, 0, DIFF3/2 - CONSTAT_SUB},
 				{DS4, 1, 0, DIFF4/2 - CONSTAT_SUB},
@@ -43,7 +44,7 @@ const PENTA_note_type Notes[MAX_NOTES] =
 				{A4, 0, 0, DIFF10/2 - CONSTAT_SUB},
 				{AS4, 1, 0, DIFF11/2 - CONSTAT_SUB},
 				{B4, 0, 0, DIFF12/2 - CONSTAT_SUB},
-				{C5, 0, 0, DIFF13/2 - CONSTAT_SUB},
+				{C_5, 0, 0, DIFF13/2 - CONSTAT_SUB},
 				{CS5, 1, 0, DIFF14/2 - CONSTAT_SUB},
 				{D5, 0, 0, DIFF15/2 - CONSTAT_SUB},
 				{DS5, 1, 0, DIFF16/2 - CONSTAT_SUB},
@@ -111,32 +112,32 @@ void PENTA_timeCount()
 	timeCounter++;
 }
 
-void PENTA_checkTime(uint16 * data)
+void PENTA_checkTime(uint16 data)
 {
 	float32 newData = DSP_digToFloat(data);
 	if(newData > 0)
 	{
 		avgData += newData;
-		timeCheckCounter++;
+		checkTimeCounter++;
 	}
 
-	if(timeCheckCounter == AVG_MAX_SAMPLES)
+	if(checkTimeCounter == AVG_MAX_SAMPLES)
 	{
 		/** Averages and checks if the sound enters no note threshold */
-		avgData /= timeCheckCounter;
+		avgData /= checkTimeCounter;
 		if(NO_NOTE_THRESH > avgData)
 		{
 			/** If so, stops measuring time and graphs*/
 			PENTA_stopTimeMeassure();
 			avgData = FALSE;
-			timeCheckCounter = FALSE;
+			checkTimeCounter = FALSE;
 			checkingTime_flag = FALSE;
 		}
 		else
 		{
 			/** Keep averaging */
 			avgData = FALSE;
-			timeCheckCounter = FALSE;
+			checkTimeCounter = FALSE;
 		}
 	}
 

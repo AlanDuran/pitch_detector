@@ -17,6 +17,9 @@
 #include "FLEX.h"
 #include "MCG.h"
 #include "PIT.h"
+#include <stdio.h>
+
+
 
 #define ADC_channel 12
 
@@ -33,7 +36,8 @@ const ADC_ConfigType ADC_Config = {
 
 int main(void)
 {
-	fbe_pbe(CLK_FREQ_HZ,PLL0_PRDIV,PLL0_VDIV);
+	//int mcg_clk_hz = pll_init(CLK_FREQ_HZ, LOW_POWER, EXTERNAL_CLOCK, PLL0_PRDIV, PLL0_VDIV, PLL_ENABLE);
+	//printf("%d\n", mcg_clk_hz);
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
 	PIT_clockGating();
 	PIT_enable();

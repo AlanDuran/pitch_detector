@@ -10,7 +10,7 @@
 #define PIT_H_
 
 #include "DataTypeDefinitions.h"
-#define CLK_FREQ_HZ 30000000
+#define CLK_FREQ_HZ 50000000
 
 typedef struct
 {

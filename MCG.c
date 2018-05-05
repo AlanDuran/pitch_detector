@@ -8,6 +8,36 @@
 
 #include "MCG.h"
 #include "MK64F12.h"
+#include "DataTypeDefinitions.h"
+
+//
+//uint8 MCG_init(void)
+//{
+//    uint32 frequency;
+//    uint8 modeMCG;
+//
+////    mcg_clk_hz = fei_fbi(SLOW_IRC_FREQ,SLOW_IRC);// 64 Hz ---> 32768
+////       mcg_clk_hz = fbi_fbe(CLK_FREQ_HZ,LOW_POWER,EXTERNAL_CLOCK); // 97.656KHz ---> 50000000
+////       mcg_clk_hz = fbe_pbe(CLK_FREQ_HZ,PLL0_PRDIV,PLL0_VDIV);	// 97.656KHz ---> 50000000 and PLL is configured to generate 60000000
+////       mcg_clk_hz =  pbe_pee(CLK_FREQ_HZ);// 117.18 KHz ---> 60000000
+//
+//    frequency = pll_init(EXTERNAL_OSCILATOR, 0, 1, PLL_DIVIDER, PLL_MULTIPLIER, 1);
+//    modeMCG = what_mcg_mode();
+//	if(frequency == SYSTEM_CLOCK && modeMCG == 0x08)
+//	{
+//		return(PLL_WORKING);
+//	}
+//	else
+//	{
+//		return(PLL_FAILED);
+//	}
+//}
+
+
+
+
+
+
 
 
 /*********************************************************************************************/
@@ -58,6 +88,15 @@ int pll_init(int crystal_val, unsigned char hgo_val, unsigned char erefs_val, si
   int ref_freq;
   int pll_freq;
 
+
+
+  SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV1(0x00) |
+                  SIM_CLKDIV1_OUTDIV2(0x01) |
+                  SIM_CLKDIV1_OUTDIV3(0x04) |
+                  SIM_CLKDIV1_OUTDIV4(0x04); /* Set the system prescalers to safe value */
+
+
+
   // check if in FEI mode
   if (!((((MCG->S & MCG_S_CLKST_MASK) >> MCG_S_CLKST_SHIFT) == 0x0) && // check CLKS mux has selcted FLL output
       (MCG->S & MCG_S_IREFST_MASK) &&                                  // check FLL ref is internal ref clk
@@ -91,7 +130,7 @@ int pll_init(int crystal_val, unsigned char hgo_val, unsigned char erefs_val, si
 
   // Check PLL output frequency is within spec.
   pll_freq = (crystal_val / prdiv_val) * vdiv_val;
-  if ((pll_freq < 48000000) || (pll_freq > 100000000)) {return 0x45;}
+  if ((pll_freq < 48000000) || (pll_freq > 120000000)) {return 0x45;}
 
   // configure the MCG_C2 register
   // the RANGE value is determined by the external frequency. Since the RANGE parameter affects the FRDIV divide value
@@ -210,7 +249,6 @@ int pll_init(int crystal_val, unsigned char hgo_val, unsigned char erefs_val, si
 unsigned char fll_rtc_init(unsigned char clk_option, unsigned char crystal_val)
 {
   unsigned char pll_freq;
-
 
   pll_freq = 24;
   return pll_freq;

@@ -19,7 +19,7 @@
 
 
 #define MINIMUM_DECRE 12
-#define MOD_4_ADC 0x40 //+ps128 ~~ 2.5KHz
+#define MOD_4_ADC 0x1d //+ps128 ~~ 2.5KHz
 #define ADC_CHANNEL 12
 #define DEC 10
 
@@ -36,6 +36,22 @@ void FTM3_IRQHandler()
 void FLEX_init()
 {
 	init_adcTimer();
+	SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
+	SIM->SCGC6 |= SIM_SCGC6_FTM0_MASK;
+	PORTC->PCR[1]   = PORT_PCR_MUX(0x4);
+
+	FTM0->MODE |= FTM_MODE_WPDIS_MASK;
+	FTM0->MODE &= ~FTM_MODE_FTMEN_MASK;
+	FTM0->CONF |= FTM_CONF_BDMMODE(3);
+
+	FTM0->CNT = 0x0;
+	FTM0->COMBINE = 0;
+	FTM0->MOD = MOD_4_ADC;
+	FTM0->CNTIN = 0;
+	FTM0->SC = 0;
+	FTM0->CONTROLS[0].CnSC = FTM_CnSC_MSA_MASK| FTM_CnSC_ELSA_MASK;
+	FTM0->CONTROLS[0].CnV= 0x0;
+	FTM0->SC |= FLEX_TIMER_CLKS_1| FLEX_TIMER_PS_16;
 }
 
 void init_adcTimer()

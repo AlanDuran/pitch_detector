@@ -42,12 +42,36 @@
 #define DIFF21 49.39f
 #define DIFF22 52
 
-#define CONSTAT_SUB 3
+#define CONSTAT_SUB 1
+
+/** Notes frequencies */
+#define C_4 261.63f
+#define CS4 277.18f
+#define D4 293.66f
+#define DS4 311.13f
+#define E4 329.63f
+#define F4 349.23f
+#define FS4 369.99f
+#define G4 392
+#define GS4 415.30f
+#define A4 440
+#define AS4 466.16f
+#define B4 493.88f
+#define C_5 523.25f
+#define CS5 554.37f
+#define D5 587.33f
+#define DS5 622.25f
+#define E5 659.25f
+#define F5 698.46f
+#define FS5 739.99f
+#define G5 783.99f
+#define GS5 830.61f
+#define A5 880
 
 
 /** Type of structure to identify the note with the fundamental frequency */
 
-typedef struct Notes
+typedef struct
 {
 	float32 f0;
 	uint8 sharp;
@@ -64,16 +88,16 @@ typedef struct Notes
  * 	and 16 would equal a whole note.
  */
 
-typedef struct s
+typedef struct
 {
 	sint8 id;
 	uint8 sharp;
 	uint8 duration;
 }ToBePlayedNote_type;
 
-void PENTA_findNote();
+sint8 PENTA_findNote(float32 freq);
 
-void PENTA_setId(sint8 id);
+void PENTA_setId(sint8 id, uint8 sharp);
 
 void PENTA_graph(uint8 duration);
 

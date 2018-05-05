@@ -8,7 +8,7 @@
 #ifndef MCG_H_
 #define MCG_H_
 
-
+#include "DataTypeDefinitions.h"
 
 // Constants for use in pll_init
 #define NO_OSCINIT 0
@@ -44,8 +44,20 @@
 #define SLOW_IRC 0
 #define FAST_IRC 1
 
+#define SLOW_IRC_FREQ 32768	/*This is the approximate value for the slow irc*/
+#define FAST_IRC_FREQ 4000000 /*This is the approximate value for the fast irc*/
+#define EXTERNAL_CLOCK 0 /*It defines an external clock*/
+#define PLL_ENABLE 1 /**PLL is enabled*/
+#define PLL_DISABLE 0 /**PLL is disabled*/
+#define CRYSTAL_OSC 1  /*It defines an crystal oscillator*/
+#define LOW_POWER 0     /* Set the oscillator for low power mode */
+#define SLOW_IRC 0 		/* Set the slow IRC */
+#define CLK0_TYPE 0     /* Crystal or canned oscillator clock input */
 #define PLL0_PRDIV 25    /* PLL predivider value */
-#define PLL0_VDIV 30    /* PLL multiplier value*/
+#define PLL0_VDIV 55   /* PLL multiplier value*/
+
+// prototypes
+uint8 MCG_init(void);
 
 
 unsigned char fll_rtc_init(unsigned char, unsigned char);
