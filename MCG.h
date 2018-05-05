@@ -54,7 +54,7 @@
 #define SLOW_IRC 0 		/* Set the slow IRC */
 #define CLK0_TYPE 0     /* Crystal or canned oscillator clock input */
 #define PLL0_PRDIV 25    /* PLL predivider value */
-#define PLL0_VDIV 55   /* PLL multiplier value*/
+#define PLL0_VDIV 30   /* PLL multiplier value*/
 
 // prototypes
 uint8 MCG_init(void);

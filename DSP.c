@@ -12,16 +12,32 @@
 #define RES_16_BIT 65535
 #define SUPPLY_V 3.3f
 #define ATTACK_THRESH .40f
+#define MAX_BUFFERS 4
 
-
-float32 secondBuffer[MAX_SAMPLES];
 uint16 noteBufferPointer;
 
 uint8 savingData_flag;
 uint8 checkingTime_flag;
 uint8 autoCorCo_flag = TRUE;
 
+uint16 buff_no;
+uint16 corBuff_no;
+float32 noteBuffer[MAX_BUFFERS][MAX_SAMPLES] = {0};
+float32 corrBuffer[MAX_SAMPLES] = {0};
 
+typedef union
+{
+	struct
+	{
+		uint8 status1 : 1;
+		uint8 status2 : 1;
+		uint8 status3 : 1;
+		uint8 status4 : 1;
+	};
+	uint8 general_status: 4;
+}Buffer_status_type;
+
+Buffer_status_type buffer_status;
 
 float32 DSP_digToFloat(uint16 data)
 {
@@ -42,10 +58,11 @@ uint8 DSP_checkAttack(uint16 data)
 	return isAttack;
 }
 
-void DSP_saveNote(uint16 data, float32 * noteBuffer)
+void DSP_saveNote(uint16 data)
 {
+	uint8 currBuff = DSP_getBuffNo();
 	/** Saves float value in array and increases the pointer*/
-	noteBuffer[noteBufferPointer] = DSP_digToFloat(data);
+	noteBuffer[currBuff][noteBufferPointer] = DSP_digToFloat(data);
 	noteBufferPointer++;
 
 	/** If the sampling is done, reinitialize pointer and turn off flag to sample*/
@@ -53,11 +70,14 @@ void DSP_saveNote(uint16 data, float32 * noteBuffer)
 	{
 		noteBufferPointer = FALSE;
 		savingData_flag = FALSE;
+		DSP_setStatus(currBuff);
+		buff_no++;
 	}
 }
 
-void DSP_autocor(float32 * noteBuffer, float32* corrBuffer)
+void DSP_autocor()
 {
+	uint8 currCorBuff = DSP_getCorBuffNo();
 	uint16 lag_index;
 	uint16 sample_index;
 	autoCorCo_flag = FALSE;
@@ -69,15 +89,16 @@ void DSP_autocor(float32 * noteBuffer, float32* corrBuffer)
 		{
 			if(sample_index - lag_index > 0)
 			{
-				corrBuffer[lag_index] += noteBuffer[sample_index]*noteBuffer[sample_index - lag_index];
+				corrBuffer[lag_index] += noteBuffer[currCorBuff][sample_index]*noteBuffer[currCorBuff][sample_index - lag_index];
 			}
 		}
 	}
-
+	DSP_clearStatus(currCorBuff);
+	corBuff_no++;
 	autoCorCo_flag = TRUE;
 }
 
-uint16 DSP_detectPeak(float32 * corrBuffer)
+uint16 DSP_detectPeak()
 {
 	uint16 pitch_period;
 	uint16 index;
@@ -106,11 +127,11 @@ uint16 DSP_detectPeak(float32 * corrBuffer)
 }
 
 
-void DSP_clearBuffer(float32 * buffer)
+void DSP_clearBuffer()
 {
 	for(uint16 index = 0; index < MAX_SAMPLES; index++)
 	{
-		buffer[index] = FALSE;
+		corrBuffer[index] = FALSE;
 	}
 }
 
@@ -127,4 +148,57 @@ uint8 DSP_getSavingFlag()
 uint8 DSP_getAutoCorFlag()
 {
 	return autoCorCo_flag;
+}
+
+uint8 DSP_getBuffNo()
+{
+	return buff_no%MAX_BUFFERS;
+}
+
+uint8 DSP_getCorBuffNo()
+{
+	return corBuff_no%MAX_BUFFERS;
+}
+
+void DSP_setStatus(uint8 status_no)
+{
+	switch(status_no)
+	{
+	case 0:
+		buffer_status.status1 = TRUE;
+		break;
+	case 1:
+		buffer_status.status2 = TRUE;
+		break;
+	case 2:
+		buffer_status.status3 = TRUE;
+		break;
+	case 3:
+		buffer_status.status4 = TRUE;
+		break;
+	}
+}
+
+void DSP_clearStatus(uint8 status_no)
+{
+	switch(status_no)
+	{
+	case 0:
+		buffer_status.status1 = FALSE;
+		break;
+	case 1:
+		buffer_status.status2 = FALSE;
+		break;
+	case 2:
+		buffer_status.status3 = FALSE;
+		break;
+	case 3:
+		buffer_status.status4 = FALSE;
+		break;
+	}
+}
+
+uint8 DSP_getGeneralStatus()
+{
+	return buffer_status.general_status;
 }

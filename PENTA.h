@@ -68,6 +68,8 @@
 #define GS5 830.61f
 #define A5 880
 
+#define BOTTOM_OFF 134
+
 
 /** Type of structure to identify the note with the fundamental frequency */
 
@@ -106,5 +108,7 @@ void PENTA_startTimeMeassure();
 void PENTA_stopTimeMeassure();
 
 uint8 PENTA_getTempoCounterPosition();
+
+uint8 PENTA_getTopOrBottom();
 
 #endif /* PENTA_H_ */

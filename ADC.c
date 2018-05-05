@@ -16,38 +16,25 @@
 #include "NVIC.h"
 #include "DSP.h"
 #include "PENTA.h"
+#include "FLEX.h"
 #include "LCD_ILI9341.h"
 #define LIMIT 0xFF
 #define SHIFT 8
 
-float32 noteBuffer[MAX_SAMPLES] = {0};
-float32 autoCorBuffer[MAX_SAMPLES] = {0};
-
 void ADC0_IRQHandler()
 {
+	ADC0->SC1[0] |=  0x1f;
 	//If the value is greater than [something], start saving values
 	/** If not saving, check if it should save*/
-	if(FALSE == DSP_getSavingFlag() && TRUE == DSP_getAutoCorFlag())
+	if(FALSE == DSP_getSavingFlag())
 	{
 		DSP_checkAttack(ADC0_readValue());	//Detects
 	}
 
 	/** If saving, save*/
-	if(TRUE == DSP_getSavingFlag() && TRUE == DSP_getAutoCorFlag())
+	if(TRUE == DSP_getSavingFlag())
 	{
-		DSP_saveNote(ADC0_readValue(), noteBuffer);		//If note is detected, saves it
-		if(FALSE == DSP_getSavingFlag())
-		{
-			DSP_autocor(noteBuffer, autoCorBuffer);
-			uint16 pitch = DSP_detectPeak(autoCorBuffer);
-			float32 f0 = DSP_findPitch(pitch);
-			DSP_clearBuffer(autoCorBuffer);
-
-			/** Find y position of note */
-			uint8 nota = PENTA_findNote(f0);
-			uint8 posX = PENTA_getTempoCounterPosition();
-			LCD_ILI9341_writeBigLetter(posX, nota, 0, WHITE);
-		}
+		DSP_saveNote(ADC0_readValue());		//If note is detected, saves it
 	}
 
 }
@@ -56,7 +43,7 @@ void ADC0_init(const ADC_ConfigType* ADC_Config)
 {
 	ADC0_clockGating(); /**Activates System Clock Gating for ADC0*/
 	setRegisters(ADC_Config); /**Writes the configurations contained in structure into registers*/
-	NVIC_enableInterruptAndPriotity(ADC0_IRQ,PRIORITY_3);
+	NVIC_enableInterruptAndPriotity(ADC0_IRQ,PRIORITY_5);
 }
 
 void ADC0_clockGating()
@@ -77,8 +64,8 @@ void setRegisters(const ADC_ConfigType* ADC_Config)
 		| ADC_SC3_ADCO(ADC_Config->cc);
 	ADC0->SC2 &= ~ADC_SC2_ACFE_MASK;
 	startConversion(ADC_Config->channel);
-	while(TRUE == ADC0_conversionComplete()){}
-	ADC0_readValue();
+	//while(TRUE == ADC0_conversionComplete()){}
+	//ADC0_readValue();
 }
 
 uint16 ADC0_readValue()
@@ -97,4 +84,9 @@ void startConversion(uint8 channel)
 {
 	/**Writes in SC1 to start a conversion*/
 	ADC0->SC1[0] |=  channel;
+}
+
+void DSP_clearSC1()
+{
+	ADC0->SC1[0] &= ~(ADC_SC1_ADCH_MASK);
 }

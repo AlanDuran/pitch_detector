@@ -30,18 +30,28 @@ float32 DSP_digToFloat(uint16 data);
 
 uint8 DSP_checkAttack(uint16 data);
 
-void DSP_saveNote(uint16 data, float32* noteBuffer);
+void DSP_saveNote(uint16 data);
 
-void DSP_autocor(float32 * noteBuffer, float32 * corrBuffer);
+void DSP_autocor();
 
-uint16 DSP_detectPeak(float32 * corrBuffer);
+uint16 DSP_detectPeak(void);
 
 float32 DSP_findPitch(uint16 pitch_period);
 
-void DSP_clearBuffer(float32 * buffer);
+void DSP_clearBuffer(void);
 
 uint8 DSP_getSavingFlag();
 
 uint8 DSP_getAutoCorFlag();
+
+uint8 DSP_getBuffNo();
+
+uint8 DSP_getCorBuffNo();
+
+void DSP_setStatus(uint8 status_no);
+
+void DSP_clearStatus(uint8 status_no);
+
+uint8 DSP_getGeneralStatus();
 
 #endif /* DSP_H_ */

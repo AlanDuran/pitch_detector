@@ -99,4 +99,6 @@ uint8 ADC0_conversionComplete();
  */
 void startConversion(uint8 channel);
 
+void DSP_clearSC1();
+
 #endif /* PIT_H_ */

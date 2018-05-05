@@ -22,6 +22,7 @@
  */
 
 uint8 timeCounter;
+uint8 topOrBottom;
 uint8 checkTimeCounter;
 float32 avgData;
 uint8 tempoCounter;
@@ -173,6 +174,7 @@ sint8 PENTA_findNote(float32 freq)
 			if(tempoCounter == 16)
 			{
 				tempoCounter = FALSE;
+				topOrBottom++;
 			}
 			tempoCounter++;
 			return Notes[index].id;
@@ -190,4 +192,9 @@ uint8 PENTA_getCheckingTimeFlag()
 uint8 PENTA_getTempoCounterPosition()
 {
 	return (tempoCounter - 1)*14;
+}
+
+uint8 PENTA_getTopOrBottom()
+{
+	return topOrBottom%2;
 }

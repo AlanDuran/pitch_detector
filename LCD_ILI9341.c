@@ -239,9 +239,9 @@ void LCD_ILI9341_writeColor(uint16 x, uint16 y, uint16 color)
 
 void LCD_ILI9341_writeBigLetter(uint16 x, uint16 y, uint16 color, uint8 letter)
 {
-	uint8 x_index= FALSE;
-	uint8 x_index2= FALSE;
-	uint8 y_index= FALSE;
+	uint16 x_index= FALSE;
+	uint16 x_index2= FALSE;
+	uint16 y_index= FALSE;
 	uint32 temporalValue = FALSE;
 	uint32 temporalASCII = FALSE;
 	uint8 shift_helper;

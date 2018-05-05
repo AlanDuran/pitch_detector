@@ -20,6 +20,7 @@
 
 #define MINIMUM_DECRE 12
 #define MOD_4_ADC 0x1d //+ps128 ~~ 2.5KHz
+//#define MOD_4_ADC 0xf0
 #define ADC_CHANNEL 12
 #define DEC 10
 
@@ -29,6 +30,7 @@
 void FTM3_IRQHandler()
 {
 	//sample
+	DSP_clearSC1();
 	startConversion(ADC_CHANNEL);
 	FTM3->SC &= ~FLEX_TIMER_TOF;
 }
@@ -54,12 +56,23 @@ void FLEX_init()
 	FTM0->CONTROLS[0].CnV= 0x0;
 	FTM0->SC |= FLEX_TIMER_CLKS_1| FLEX_TIMER_PS_16;
 	*/
+
 }
 
 void init_adcTimer()
 {
 	SIM->SCGC3 |= SIM_SCGC3_FTM3_MASK;						/**< Clock gating for the FlexTimer 3*/
-	NVIC_enableInterruptAndPriotity(FTM3_IRQ,PRIORITY_4);	/**< Enable interrupt for FTM1*/
+	NVIC_enableInterruptAndPriotity(FTM3_IRQ,PRIORITY_3);	/**< Enable interrupt for FTM1*/
 	FTM3->MOD = MOD_4_ADC;									/**< Mod value for 4 Hz with PS 128*/
 	FTM3->SC = FLEX_TIMER_CLKS_1 | FLEX_TIMER_TOIE | FLEX_TIMER_PS_16;/**< Configures FTM1 with OF interrupts enabled and PS 128 but TURNED OFF*/
+}
+
+void FTM3_turnOff()
+{
+	FTM3->SC &= ~(FTM_SC_CLKS_MASK);
+}
+
+void FTM3_turnOn()
+{
+	FTM1->SC |= FLEX_TIMER_CLKS_1;
 }

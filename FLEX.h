@@ -17,8 +17,8 @@
 #include "DataTypeDefinitions.h"
 #include "GPIO.h"
 
-//#define SAMPLE_FS 44642.85714f /** Sample frequency, change every time you change mod or ps*/
-#define SAMPLE_FS 87410.60278f
+#define SAMPLE_FS 45258.62069f /** Sample frequency, change every time you change mod or ps*/
+//#define SAMPLE_FS 87410.60278f
 #define FLEX_TIMER_0_CLOCK_GATING 0x01000000
 
 #define FLEX_TIMER_FAULTIE  0x80
@@ -102,6 +102,10 @@ void FLEX_init();
  */
 void init_adcTimer();
 
+
+void FTM3_turnOff();
+
+void FTM3_turnOn();
 
 
 #endif /* FLEX_H_ */
