@@ -52,8 +52,8 @@ const SPI_ConfigType SPI_Config = {
 
 int main(void)
 {
-	//int mcg_clk_hz = pll_init(CLK_FREQ_HZ, LOW_POWER, EXTERNAL_CLOCK, PLL0_PRDIV, PLL0_VDIV, PLL_ENABLE);
-	//printf("%d\n", mcg_clk_hz);
+	int mcg_clk_hz = pll_init(CLK_FREQ_HZ, LOW_POWER, EXTERNAL_CLOCK, PLL0_PRDIV, PLL0_VDIV, PLL_ENABLE);
+	printf("%d\n", mcg_clk_hz);
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
 	PIT_clockGating();
 	PIT_enable();

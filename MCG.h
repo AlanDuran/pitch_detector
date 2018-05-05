@@ -53,8 +53,8 @@
 #define LOW_POWER 0     /* Set the oscillator for low power mode */
 #define SLOW_IRC 0 		/* Set the slow IRC */
 #define CLK0_TYPE 0     /* Crystal or canned oscillator clock input */
-#define PLL0_PRDIV 25    /* PLL predivider value */
-#define PLL0_VDIV 30   /* PLL multiplier value*/
+#define PLL0_PRDIV 20    /* PLL predivider value */
+#define PLL0_VDIV 48   /* PLL multiplier value*/
 
 // prototypes
 uint8 MCG_init(void);

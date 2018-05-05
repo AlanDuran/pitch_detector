@@ -11,7 +11,7 @@
 #include "DataTypeDefinitions.h"
 #include "FLEX.h"
 
-#define MAX_SAMPLES 1000
+#define MAX_SAMPLES 2500
 
 /**
  * ----------FUNCIONES-------------
@@ -44,14 +44,14 @@ uint8 DSP_getSavingFlag();
 
 uint8 DSP_getAutoCorFlag();
 
-uint8 DSP_getBuffNo();
-
-uint8 DSP_getCorBuffNo();
-
 void DSP_setStatus(uint8 status_no);
 
 void DSP_clearStatus(uint8 status_no);
 
 uint8 DSP_getGeneralStatus();
+
+uint8 DSP_getBuffNo();
+
+uint8 DSP_getCorBuffNo();
 
 #endif /* DSP_H_ */
