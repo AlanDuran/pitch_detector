@@ -8,11 +8,14 @@
 #include "PENTA.h"
 #include "DSP.h"
 #include "PIT.h"
+#include "NVIC.h"
 #include "LCD_ILI9341.h"
 
 #define SYSTEM_CLOCK 60000000
-#define LOW_TEST_TEMPO .5f
+#define LOW_TEST_TEMPO 60.00f
 #define NO_NOTE_THRESH 0.15f /** To be calibrated */
+#define MAX_ENTRIES 4
+#define MAX_SAVED_NOTES 240
 
 /**
  * 	Some notes on printing on the screen:
@@ -27,20 +30,91 @@ float32 avgData;
 uint8 tempoCounter;
 static uint8 checkingTime_flag;
 
+static uint8 saving_position;/**< Counter that indicates the position of the note being saved*/
+
+uint8 clearPenta_flag;
+
 /**
  * 	Will have a buffer of two in case we need the extra space.
  */
 
+static PENTA_savedNotes_type savedNotes[MAX_ENTRIES][MAX_SAVED_NOTES];
+
+/*
+ * 	New functions:
+ * 	Save note,
+ * 	meassure time (make attack return the starting time to compare current to that)
+ */
+
+void PENTA_saveYPos(uint8 y_pos)
+{
+	savedNotes[1][saving_position].y_pos =  y_pos;
+}
+
+void PENTA_saveTopBottom(uint8 top_bottom)
+{
+	savedNotes[1][saving_position].top_bottom = top_bottom;
+}
+
+void PENTA_saveStartingTime()
+{
+	savedNotes[1][saving_position].start_time = PENTA_getTimeCounter();
+}
+
+void PENTA_saveDuration()
+{
+	/** Gets the current time, then subtracts starting time to get duration */
+	uint8 current_time = PENTA_getTimeCounter();
+	savedNotes[1][saving_position].duration = current_time - savedNotes[1][saving_position].start_time;
+	/** Increases position, since the next sound will be the next to be saved */
+	PENTA_graph();
+	saving_position++;
+	/** After this you can print */
+}
+
+void PENTA_graph()
+{
+	uint8 posX = PENTA_getTempoCounterPosition(); //check
+	if(FALSE != savedNotes[1][saving_position].y_pos)
+	{
+		if(TRUE == savedNotes[1][saving_position].top_bottom)
+		{
+			LCD_ILI9341_writeBigLetter(posX, savedNotes[1][saving_position].y_pos + BOTTOM_OFF, 0, WHITE);
+		}
+
+		else
+		{
+			LCD_ILI9341_writeBigLetter(posX, savedNotes[1][saving_position].y_pos, 0, WHITE);
+		}
+
+		if(TRUE == PENTA_getClearPenta())
+		{
+			DisableInterrupts;
+			LCD_ILI9341_fillScreen(ILI9341_CYAN);
+			LCD_ILI9341_drawPartiture(FALSE);
+			LCD_ILI9341_drawPartiture(TRUE);
+			PENTA_clearClearPenta();
+			EnableInterrupts;
+		}
+	}
+	else
+	{
+		saving_position--;
+		tempoCounter = (tempoCounter - 1 < 1)? 1: tempoCounter--;
+	}
+
+}
 
 void PENTA_startTimeMeassure()
 {
-	PIT_delay(PIT_1, SYSTEM_CLOCK, LOW_TEST_TEMPO); /**< The period is taken from the tempo value for the pentagram*/
+	float32 period = 60/LOW_TEST_TEMPO/4;
+	PIT_delay(PIT_1, SYSTEM_CLOCK, period); /**< The period is taken from the tempo value for the pentagram*/
 	//checkingTime_flag = TRUE;
 }
 
 void PENTA_graphTempo()
 {
-	switch(timeCounter%8)
+	switch(timeCounter%16)
 	{
 	case 0:
 		LCD_ILI9341_drawShape(30, 290, 40, 300, ILI9341_BLACK);
@@ -48,13 +122,13 @@ void PENTA_graphTempo()
 		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_CYAN);
 		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_CYAN);
 		break;
-	case 2:
+	case 4:
 		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_BLACK);
 		break;
-	case 4:
+	case 8:
 		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_BLACK);
 		break;
-	case 6:
+	case 12:
 		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_BLACK);
 		break;
 	}
@@ -124,6 +198,10 @@ sint8 PENTA_findNote(float32 freq)
 		{
 			if(tempoCounter == 16)
 			{
+				if(TRUE == PENTA_getTopOrBottom())
+				{
+					clearPenta_flag = TRUE;
+				}
 				tempoCounter = FALSE;
 				topOrBottom++;
 			}
@@ -153,4 +231,19 @@ uint8 PENTA_getTimeCounter()
 uint8 PENTA_getTopOrBottom()
 {
 	return topOrBottom%2;
+}
+
+uint8 PENTA_getClearPenta()
+{
+	return clearPenta_flag;
+}
+
+void PENTA_clearClearPenta()
+{
+	clearPenta_flag = FALSE;
+}
+
+uint8 PENTA_getSavingPosition()
+{
+	return saving_position;
 }

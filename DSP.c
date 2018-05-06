@@ -30,6 +30,9 @@ float32 new_threshold;
 float32 temp_threshold;
 uint8 threshold_counter;
 
+/** Flag that indicates to take duration from diff between attacks*/
+uint8 duration_attacks_flag = TRUE;
+
 uint16 buff_no;
 uint16 corBuff_no;
 float32 noteBuffer[MAX_BUFFERS][MAX_SAMPLES] = {0};
@@ -71,11 +74,30 @@ uint8 DSP_checkAttack(uint16 data)
 	/** Checks if value converted to float surpasses the defined threshold*/
 	uint8 isAttack =(DSP_digToFloat(data) >= new_threshold + THRESH_OFF);
 	/** If so, turns on flag that indicates to save values*/
+
+	/** If silence, save duration with difference in times and turn on a flag that indicates
+	 * 	not to take duration from difference between attacks
+	 */
+	if (new_threshold == LOW_ATTACK_THRESH && currentTempo != FALSE && TRUE == duration_attacks_flag)
+	{
+		duration_attacks_flag = FALSE;
+		/** Save data */
+		PENTA_saveDuration(); /**< Need to be careful, the first entry might record this forever*/
+	}
+
 	if(TRUE == isAttack && PENTA_getTimeCounter() != currentTempo)
 	{
+		if(TRUE == duration_attacks_flag)
+		{
+			/** Save last note's duration with current time*/
+			PENTA_saveDuration();
+		}
+		/** Save starting time on current note */
+
+		PENTA_saveStartingTime();
 		savingData_flag = TRUE;
 		currentTempo = PENTA_getTimeCounter();
-		/** Start pit to count the time */
+		duration_attacks_flag = TRUE; /**< Reset the flag to indicate it can measure between attacks */
 	}
 	return isAttack;
 }

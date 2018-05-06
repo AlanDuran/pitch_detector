@@ -11,7 +11,7 @@
 #include "DataTypeDefinitions.h"
 #include "FLEX.h"
 
-#define MAX_SAMPLES 2500
+#define MAX_SAMPLES 1000
 
 /**
  * ----------FUNCIONES-------------

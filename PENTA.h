@@ -85,6 +85,16 @@ typedef struct
 	float32 diff;
 } PENTA_note_type;
 
+/** Structure to be made an array to save the notes */
+
+typedef struct
+{
+	uint8 y_pos;
+	uint8 top_bottom;
+	uint8 start_time;
+	uint8 duration;
+}PENTA_savedNotes_type;
+
 /*
 * 	15.55, 16.48, 17.47, 18.5, 19.6, 20.76, 22.01, 23.3, 24.7, 26.16, 27.72, 29.37,
 * 	31.12, 32.96, 34.92, 37, 39.21, 41.53, 44, 46.62, 49.39, 52.
@@ -134,6 +144,16 @@ typedef struct
 	uint8 duration;
 }ToBePlayedNote_type;
 
+void PENTA_saveYPos(uint8 y_pos);
+
+void PENTA_saveTopBottom(uint8 top_bottom);
+
+void PENTA_saveStartingTime(void);
+
+void PENTA_saveDuration(void);
+
+void PENTA_graph();
+
 sint8 PENTA_findNote(float32 freq);
 
 void PENTA_startTimeMeassure();
@@ -149,5 +169,9 @@ uint8 PENTA_getTempoCounterPosition();
 uint8 PENTA_getTimeCounter();
 
 uint8 PENTA_getTopOrBottom();
+
+uint8 PENTA_getClearPenta();
+
+void PENTA_clearClearPenta();
 
 #endif /* PENTA_H_ */

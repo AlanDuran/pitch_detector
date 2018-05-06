@@ -70,6 +70,7 @@ int main()
 
 	for(;;)
 	{
+		/** Do correlations and save stuff */
 		if(0 != DSP_getGeneralStatus())
 		{
 			DSP_autocor();
@@ -79,19 +80,13 @@ int main()
 
 			/** Find y position of note */
 			uint8 nota = PENTA_findNote(f0);
-			uint8 posX = PENTA_getTempoCounterPosition();
 			uint8 bottom = PENTA_getTopOrBottom();
 
-			/** If bottom is true add constant to all prints */
-			if(TRUE == bottom)
-			{
-				LCD_ILI9341_writeBigLetter(posX, nota + BOTTOM_OFF, 0, WHITE);
-			}
-			else
-			{
-				LCD_ILI9341_writeBigLetter(posX, nota, 0, WHITE);
-			}
+			PENTA_saveYPos(nota);
+			PENTA_saveTopBottom(bottom);
 		}
+
+		/** */
 
 		/** Draw little squares to indicate tempo */
 	}
