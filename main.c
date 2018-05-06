@@ -57,6 +57,7 @@ int main(void)
 	NVIC_setBASEPRI_threshold(PRIORITY_10);
 	PIT_clockGating();
 	PIT_enable();
+	NVIC_enableInterruptAndPriotity(PIT_CH1_IRQ,PRIORITY_3);
 	SPI_init(&SPI_Config);
 	LCD_ILI9341_init();
 	LCD_ILI9341_drawPartiture(FALSE);
@@ -64,6 +65,9 @@ int main(void)
 	FLEX_init();
 	ADC0_init(&ADC_Config);
 	EnableInterrupts;
+	PENTA_startTimeMeassure();
+
+
 	for(;;)
 	{
 		if(0 != DSP_getGeneralStatus())
@@ -88,6 +92,8 @@ int main(void)
 				LCD_ILI9341_writeBigLetter(posX, nota, 0, WHITE);
 			}
 		}
+
+		/** Draw little squares to indicate tempo */
 	}
 }
 

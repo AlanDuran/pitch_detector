@@ -8,9 +8,10 @@
 #include "PENTA.h"
 #include "DSP.h"
 #include "PIT.h"
+#include "LCD_ILI9341.h"
 
 #define MAX_NOTES 22
-#define SYSTEM_CLOCK 30000000
+#define SYSTEM_CLOCK 60000000
 #define LOW_TEST_TEMPO 0.25f
 #define AVG_MAX_SAMPLES 100
 #define NO_NOTE_THRESH 0.1f /** To be calibrated */
@@ -21,7 +22,7 @@
  * 	First penta starts on y 40, in between lines there is a diff of 15
  */
 
-uint8 timeCounter;
+uint8 timeCounter = 255;
 uint8 topOrBottom;
 uint8 checkTimeCounter;
 float32 avgData;
@@ -105,7 +106,29 @@ void PENTA_graph(uint8 duration)
 void PENTA_startTimeMeassure()
 {
 	PIT_delay(PIT_1, SYSTEM_CLOCK, LOW_TEST_TEMPO); /**< The period is taken from the tempo value for the pentagram*/
-	checkingTime_flag = TRUE;
+	//checkingTime_flag = TRUE;
+}
+
+void PENTA_graphTempo()
+{
+	switch(timeCounter%4)
+	{
+	case 0:
+		LCD_ILI9341_drawShape(30, 290, 40, 300, ILI9341_BLACK);
+		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_CYAN);
+		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_CYAN);
+		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_CYAN);
+		break;
+	case 1:
+		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_BLACK);
+		break;
+	case 2:
+		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_BLACK);
+		break;
+	case 3:
+		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_BLACK);
+		break;
+	}
 }
 
 void PENTA_stopTimeMeassure()
@@ -192,6 +215,11 @@ uint8 PENTA_getCheckingTimeFlag()
 uint8 PENTA_getTempoCounterPosition()
 {
 	return (tempoCounter - 1)*14;
+}
+
+uint8 PENTA_getTimeCounter()
+{
+	return timeCounter;
 }
 
 uint8 PENTA_getTopOrBottom()

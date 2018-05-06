@@ -105,9 +105,13 @@ void PENTA_graph(uint8 duration);
 
 void PENTA_startTimeMeassure();
 
+void PENTA_graphTempo();
+
 void PENTA_stopTimeMeassure();
 
 uint8 PENTA_getTempoCounterPosition();
+
+uint8 PENTA_getTimeCounter();
 
 uint8 PENTA_getTopOrBottom();
 

@@ -9,6 +9,7 @@
 #include "MK64F12.h"
 
 #include "PIT.h"
+#include "PENTA.h"
 
 static PIT_interruptFlags_t PIT_intrStatusFlag;
 
@@ -23,6 +24,7 @@ void PIT1_IRQHandler()
 {
 	///Pit status flag is set to true so interrupt can be detected elsewhere and TFLG is turned off.
 	PENTA_timeCount();
+	PENTA_graphTempo();
 	PIT_intrStatusFlag.flagPIT1 = TRUE;
 	PIT->CHANNEL[PIT_1].TFLG |= PIT_TFLG_TIF_MASK;
 }

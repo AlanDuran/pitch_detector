@@ -48,7 +48,7 @@ void DSP_setStatus(uint8 status_no);
 
 void DSP_clearStatus(uint8 status_no);
 
-uint8 DSP_getGeneralStatus();
+uint16 DSP_getGeneralStatus();
 
 uint8 DSP_getBuffNo();
 

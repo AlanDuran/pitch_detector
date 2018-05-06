@@ -7,18 +7,21 @@
 
 #include "DSP.h"
 #include "PIT.h"
+#include "PENTA.h"
 
 
 #define RES_16_BIT 65535
 #define SUPPLY_V 3.3f
-#define ATTACK_THRESH .40f
-#define MAX_BUFFERS 4
+#define ATTACK_THRESH .7f
+#define MAX_BUFFERS 16
 
 uint16 noteBufferPointer;
 
 uint8 savingData_flag;
 uint8 checkingTime_flag;
 uint8 autoCorCo_flag = TRUE;
+
+uint8 currentTempo;
 
 uint16 buff_no;
 uint16 corBuff_no;
@@ -29,12 +32,24 @@ typedef union
 {
 	struct
 	{
-		uint8 status1 : 1;
-		uint8 status2 : 1;
-		uint8 status3 : 1;
-		uint8 status4 : 1;
+		uint16 status1 : 1;
+		uint16 status2 : 1;
+		uint16 status3 : 1;
+		uint16 status4 : 1;
+		uint16 status5 : 1;
+		uint16 status6 : 1;
+		uint16 status7 : 1;
+		uint16 status8 : 1;
+		uint16 status9 : 1;
+		uint16 status10 : 1;
+		uint16 status11 : 1;
+		uint16 status12 : 1;
+		uint16 status13 : 1;
+		uint16 status14 : 1;
+		uint16 status15 : 1;
+		uint16 status16 : 1;
 	};
-	uint8 general_status: 4;
+	uint16 general_status;
 }Buffer_status_type;
 
 Buffer_status_type buffer_status;
@@ -49,9 +64,10 @@ uint8 DSP_checkAttack(uint16 data)
 	/** Checks if value converted to float surpasses the defined threshold*/
 	uint8 isAttack =(DSP_digToFloat(data) >= ATTACK_THRESH);
 	/** If so, turns on flag that indicates to save values*/
-	if(TRUE == isAttack)
+	if(TRUE == isAttack && PENTA_getTimeCounter() != currentTempo)
 	{
 		savingData_flag = TRUE;
+		currentTempo = PENTA_getTimeCounter();
 		/** Start pit to count the time */
 
 	}
@@ -176,6 +192,43 @@ void DSP_setStatus(uint8 status_no)
 	case 3:
 		buffer_status.status4 = TRUE;
 		break;
+	case 4:
+		buffer_status.status5 = TRUE;
+		break;
+	case 5:
+		buffer_status.status6 = TRUE;
+		break;
+	case 6:
+		buffer_status.status7 = TRUE;
+		break;
+	case 7:
+		buffer_status.status8 = TRUE;
+		break;
+	case 8:
+		buffer_status.status9 = TRUE;
+		break;
+	case 9:
+		buffer_status.status10 = TRUE;
+		break;
+	case 10:
+		buffer_status.status11 = TRUE;
+		break;
+	case 11:
+		buffer_status.status12 = TRUE;
+		break;
+	case 12:
+		buffer_status.status13 = TRUE;
+		break;
+	case 13:
+		buffer_status.status14 = TRUE;
+		break;
+	case 14:
+		buffer_status.status15 = TRUE;
+		break;
+	case 15:
+		buffer_status.status16 = TRUE;
+		break;
+
 	}
 }
 
@@ -195,10 +248,46 @@ void DSP_clearStatus(uint8 status_no)
 	case 3:
 		buffer_status.status4 = FALSE;
 		break;
+	case 4:
+		buffer_status.status5 = FALSE;
+		break;
+	case 5:
+		buffer_status.status6 = FALSE;
+		break;
+	case 6:
+		buffer_status.status7 = FALSE;
+		break;
+	case 7:
+		buffer_status.status8 = FALSE;
+		break;
+	case 8:
+		buffer_status.status9 = FALSE;
+		break;
+	case 9:
+		buffer_status.status10 = FALSE;
+		break;
+	case 10:
+		buffer_status.status11 = FALSE;
+		break;
+	case 11:
+		buffer_status.status12 = FALSE;
+		break;
+	case 12:
+		buffer_status.status13 = FALSE;
+		break;
+	case 13:
+		buffer_status.status14 = FALSE;
+		break;
+	case 14:
+		buffer_status.status15 = FALSE;
+		break;
+	case 15:
+		buffer_status.status16 = FALSE;
+		break;
 	}
 }
 
-uint8 DSP_getGeneralStatus()
+uint16 DSP_getGeneralStatus()
 {
 	return buffer_status.general_status;
 }
