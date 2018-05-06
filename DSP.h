@@ -54,4 +54,6 @@ uint8 DSP_getBuffNo();
 
 uint8 DSP_getCorBuffNo();
 
+void DSP_setNewAttackThresh(uint16 data);
+
 #endif /* DSP_H_ */

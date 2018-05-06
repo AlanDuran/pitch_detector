@@ -36,6 +36,8 @@ void ADC0_IRQHandler()
 	{
 		DSP_saveNote(ADC0_readValue());		//If note is detected, saves it
 	}
+
+	DSP_setNewAttackThresh(ADC0_readValue());
 }
 
 void ADC0_init(const ADC_ConfigType* ADC_Config)

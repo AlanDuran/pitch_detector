@@ -10,11 +10,9 @@
 #include "PIT.h"
 #include "LCD_ILI9341.h"
 
-#define MAX_NOTES 22
 #define SYSTEM_CLOCK 60000000
-#define LOW_TEST_TEMPO 0.25f
-#define AVG_MAX_SAMPLES 100
-#define NO_NOTE_THRESH 0.1f /** To be calibrated */
+#define LOW_TEST_TEMPO .5f
+#define NO_NOTE_THRESH 0.15f /** To be calibrated */
 
 /**
  * 	Some notes on printing on the screen:
@@ -33,75 +31,6 @@ static uint8 checkingTime_flag;
  * 	Will have a buffer of two in case we need the extra space.
  */
 
-static ToBePlayedNote_type nextNote[4];
-/*
-* 	15.55, 16.48, 17.47, 18.5, 19.6, 20.76, 22.01, 23.3, 24.7, 26.16, 27.72, 29.37,
-* 	31.12, 32.96, 34.92, 37, 39.21, 41.53, 44, 46.62, 49.39, 52.
-*/
-
-const PENTA_note_type Notes[MAX_NOTES] =
-		{
-				{C_4, 0, 115, DIFF1/2 - CONSTAT_SUB},
-				{CS4, 1, 115, DIFF2/2 - CONSTAT_SUB},
-				{D4, 0, 108, DIFF3/2 - CONSTAT_SUB},
-				{DS4, 1, 108, DIFF4/2 - CONSTAT_SUB},
-				{E4, 0, 100, DIFF5/2 - CONSTAT_SUB},
-				{F4, 0, 93, DIFF6/2 - CONSTAT_SUB},
-				{FS4, 1, 93, DIFF7/2 - CONSTAT_SUB},
-				{G4, 0, 85, DIFF8/2 - CONSTAT_SUB},
-				{GS4, 1, 85, DIFF9/2 - CONSTAT_SUB},
-				{A4, 0, 78, DIFF10/2 - CONSTAT_SUB},
-				{AS4, 1, 78, DIFF11/2 - CONSTAT_SUB},
-				{B4, 0, 70, DIFF12/2 - CONSTAT_SUB},
-				{C_5, 0, 63, DIFF13/2 - CONSTAT_SUB},
-				{CS5, 1, 63, DIFF14/2 - CONSTAT_SUB},
-				{D5, 0, 55, DIFF15/2 - CONSTAT_SUB},
-				{DS5, 1, 55, DIFF16/2 - CONSTAT_SUB},
-				{E5, 0, 48, DIFF17/2 - CONSTAT_SUB},
-				{F5, 0, 40, DIFF18/2 - CONSTAT_SUB},
-				{FS5, 1, 40, DIFF19/2 - CONSTAT_SUB},
-				{G5, 0, 33, DIFF20/2 - CONSTAT_SUB},
-				{GS5, 1, 33, DIFF21/2 - CONSTAT_SUB},
-				{A5, 0, 25, DIFF22/2 - CONSTAT_SUB},
-
-		};
-
-void PENTA_setId(sint8 id, uint8 sharp)
-{
-	nextNote[0].id = id;
-	nextNote[0].sharp = sharp;
-}
-
-void PENTA_graph(uint8 duration)
-{
-	nextNote[0].duration = duration;
-	/** Paste in next position:
-	 *
-	 * 	Determine with duration what will be printed as follows:
-	 * 	1 - a sixteenth (double flag)
-	 * 	2 - an eight (flag)
-	 * 	3 - an eight with a point (flag with point)
-	 * 	4 - a quarter note (black)
-	 * 	5 - a quarter note with a sixteenth together with a rainbow on top (black and double flag with rainbow on top)
-	 * 	6 - a quarter note with a point (black with a point)
-	 * 	7 - black with a flag with a point with rainbow
-	 * 	8 - half note (white)
-	 * 	9 - white with a double flag with rainbow
-	 * 	10 - white with a flag with rainbow
-	 * 	11 - white with a flag with point with rainbow
-	 * 	12 - white with a point
-	 * 	13 - white with a point with a double flag with rainbow
-	 * 	14 - white with a point with a flag with rainbow
-	 * 	15 - white with a point with a a flag with point with rainbow
-	 * 	16 - whole note
-	 */
-
-	// Some of this sounds ridiculous and probably won't understand the myself, so will probably round them up.
-
-	/**
-	 * 	Determine the position of the pentagram with notes played (counter)(horizontally) and with id (vertically)
-	 */
-}
 
 void PENTA_startTimeMeassure()
 {
@@ -111,7 +40,7 @@ void PENTA_startTimeMeassure()
 
 void PENTA_graphTempo()
 {
-	switch(timeCounter%4)
+	switch(timeCounter%8)
 	{
 	case 0:
 		LCD_ILI9341_drawShape(30, 290, 40, 300, ILI9341_BLACK);
@@ -119,13 +48,13 @@ void PENTA_graphTempo()
 		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_CYAN);
 		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_CYAN);
 		break;
-	case 1:
+	case 2:
 		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_BLACK);
 		break;
-	case 2:
+	case 4:
 		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_BLACK);
 		break;
-	case 3:
+	case 6:
 		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_BLACK);
 		break;
 	}
@@ -134,7 +63,6 @@ void PENTA_graphTempo()
 void PENTA_stopTimeMeassure()
 {
 	PIT_stop(PIT_1);
-	PENTA_graph(timeCounter);
 	timeCounter = FALSE;
 }
 
@@ -145,13 +73,14 @@ void PENTA_timeCount()
 
 void PENTA_checkTime(uint16 data)
 {
+	/** Stores data only if they are positive numbers */
 	float32 newData = DSP_digToFloat(data);
 	if(newData > 0)
 	{
 		avgData += newData;
 		checkTimeCounter++;
 	}
-
+	/** If the samples reach the desired ammount, averages and checks */
 	if(checkTimeCounter == AVG_MAX_SAMPLES)
 	{
 		/** Averages and checks if the sound enters no note threshold */
@@ -159,7 +88,7 @@ void PENTA_checkTime(uint16 data)
 		if(NO_NOTE_THRESH > avgData)
 		{
 			/** If so, stops measuring time and graphs*/
-			PENTA_stopTimeMeassure();
+			//PENTA_stopTimeMeassure();
 			avgData = FALSE;
 			checkTimeCounter = FALSE;
 			checkingTime_flag = FALSE;
@@ -171,7 +100,6 @@ void PENTA_checkTime(uint16 data)
 			checkTimeCounter = FALSE;
 		}
 	}
-
 }
 
 sint8 PENTA_findNote(float32 freq)

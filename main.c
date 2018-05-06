@@ -50,7 +50,7 @@ const SPI_ConfigType SPI_Config = {
 		{GPIO_D,BIT1,BIT2}
 };
 
-int main(void)
+int main()
 {
 	int mcg_clk_hz = pll_init(CLK_FREQ_HZ, LOW_POWER, EXTERNAL_CLOCK, PLL0_PRDIV, PLL0_VDIV, PLL_ENABLE);
 	printf("%d\n", mcg_clk_hz);

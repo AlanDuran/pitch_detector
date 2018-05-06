@@ -70,6 +70,10 @@
 
 #define BOTTOM_OFF 134
 
+#define AVG_MAX_SAMPLES 250
+
+#define MAX_NOTES 22
+
 
 /** Type of structure to identify the note with the fundamental frequency */
 
@@ -80,6 +84,39 @@ typedef struct
 	sint8 id;
 	float32 diff;
 } PENTA_note_type;
+
+/*
+* 	15.55, 16.48, 17.47, 18.5, 19.6, 20.76, 22.01, 23.3, 24.7, 26.16, 27.72, 29.37,
+* 	31.12, 32.96, 34.92, 37, 39.21, 41.53, 44, 46.62, 49.39, 52.
+*/
+
+static const PENTA_note_type Notes[MAX_NOTES] =
+		{
+				{C_4, 0, 115, DIFF1/2 - CONSTAT_SUB},
+				{CS4, 1, 115, DIFF2/2 - CONSTAT_SUB},
+				{D4, 0, 108, DIFF3/2 - CONSTAT_SUB},
+				{DS4, 1, 108, DIFF4/2 - CONSTAT_SUB},
+				{E4, 0, 100, DIFF5/2 - CONSTAT_SUB},
+				{F4, 0, 93, DIFF6/2 - CONSTAT_SUB},
+				{FS4, 1, 93, DIFF7/2 - CONSTAT_SUB},
+				{G4, 0, 85, DIFF8/2 - CONSTAT_SUB},
+				{GS4, 1, 85, DIFF9/2 - CONSTAT_SUB},
+				{A4, 0, 78, DIFF10/2 - CONSTAT_SUB},
+				{AS4, 1, 78, DIFF11/2 - CONSTAT_SUB},
+				{B4, 0, 70, DIFF12/2 - CONSTAT_SUB},
+				{C_5, 0, 63, DIFF13/2 - CONSTAT_SUB},
+				{CS5, 1, 63, DIFF14/2 - CONSTAT_SUB},
+				{D5, 0, 55, DIFF15/2 - CONSTAT_SUB},
+				{DS5, 1, 55, DIFF16/2 - CONSTAT_SUB},
+				{E5, 0, 48, DIFF17/2 - CONSTAT_SUB},
+				{F5, 0, 40, DIFF18/2 - CONSTAT_SUB},
+				{FS5, 1, 40, DIFF19/2 - CONSTAT_SUB},
+				{G5, 0, 33, DIFF20/2 - CONSTAT_SUB},
+				{GS5, 1, 33, DIFF21/2 - CONSTAT_SUB},
+				{A5, 0, 25, DIFF22/2 - CONSTAT_SUB},
+
+		};
+
 
 /**
  * 	\brief Structure referencing notes
@@ -99,13 +136,11 @@ typedef struct
 
 sint8 PENTA_findNote(float32 freq);
 
-void PENTA_setId(sint8 id, uint8 sharp);
-
-void PENTA_graph(uint8 duration);
-
 void PENTA_startTimeMeassure();
 
 void PENTA_graphTempo();
+
+void PENTA_timeCount();
 
 void PENTA_stopTimeMeassure();
 

@@ -12,8 +12,10 @@
 
 #define RES_16_BIT 65535
 #define SUPPLY_V 3.3f
-#define ATTACK_THRESH .7f
+#define ATTACK_THRESH .55f
+#define LOW_ATTACK_THRESH .3f
 #define MAX_BUFFERS 16
+#define THRESH_OFF .3f
 
 uint16 noteBufferPointer;
 
@@ -22,6 +24,11 @@ uint8 checkingTime_flag;
 uint8 autoCorCo_flag = TRUE;
 
 uint8 currentTempo;
+
+/** Variables to set new threshold*/
+float32 new_threshold;
+float32 temp_threshold;
+uint8 threshold_counter;
 
 uint16 buff_no;
 uint16 corBuff_no;
@@ -62,14 +69,13 @@ float32 DSP_digToFloat(uint16 data)
 uint8 DSP_checkAttack(uint16 data)
 {
 	/** Checks if value converted to float surpasses the defined threshold*/
-	uint8 isAttack =(DSP_digToFloat(data) >= ATTACK_THRESH);
+	uint8 isAttack =(DSP_digToFloat(data) >= new_threshold + THRESH_OFF);
 	/** If so, turns on flag that indicates to save values*/
 	if(TRUE == isAttack && PENTA_getTimeCounter() != currentTempo)
 	{
 		savingData_flag = TRUE;
 		currentTempo = PENTA_getTimeCounter();
 		/** Start pit to count the time */
-
 	}
 	return isAttack;
 }
@@ -140,6 +146,26 @@ uint16 DSP_detectPeak()
 	}
 
 	return pitch_period;
+}
+
+void DSP_setNewAttackThresh(uint16 data)
+{
+	/** Stores data only if they are positive numbers */
+	float32 newData = DSP_digToFloat(data);
+	if(newData > 0)
+	{
+		temp_threshold += newData;
+		threshold_counter++;
+	}
+	/** If the samples reach the desired ammount, averages and sets */
+	if(threshold_counter == AVG_MAX_SAMPLES)
+	{
+		/** Averages and sets the new threshold*/
+		new_threshold = (temp_threshold/threshold_counter)*2;
+		new_threshold = (new_threshold < LOW_ATTACK_THRESH)? LOW_ATTACK_THRESH : new_threshold;
+		temp_threshold = FALSE;
+		threshold_counter = FALSE;
+	}
 }
 
 
