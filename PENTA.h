@@ -175,4 +175,14 @@ uint8 PENTA_getClearPenta();
 
 void PENTA_clearClearPenta();
 
+void PENTA_increaseTempo();
+
+void PENTA_decreaseTempo();
+
+void PENTA_restartPit();
+
+void PENTA_clearSaves();
+
+void PENTA_setMaxSaves(uint8 new_max);
+
 #endif /* PENTA_H_ */

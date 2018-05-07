@@ -21,6 +21,7 @@
 #include "PENTA.h"
 #include "LCD_ILI9341.h"
 #include "DSP.h"
+#include "menu.h"
 #include <stdio.h>
 
 
@@ -65,14 +66,19 @@ int main()
 	FLEX_init();
 	ADC0_init(&ADC_Config);
 	EnableInterrupts;
-	PENTA_startTimeMeassure();
-
+	initMenu();
 
 	for(;;)
 	{
-		/** Do correlations and save stuff */
-		if(0 != DSP_getGeneralStatus())
+		if(TRUE == GPIO_getIRQStatus(GPIO_C))
 		{
+			updateMenu();
+			GPIO_clearIRQStatus(GPIO_C);
+		}
+		/** Do correlations and save stuff */
+		if((B0 == getMenuState() || B1a == getMenuState())&& FALSE != DSP_getGeneralStatus())
+		{
+			/** Do this without saving*/
 			DSP_autocor();
 			uint16 pitch = DSP_detectPeak();
 			float32 f0 = DSP_findPitch(pitch);
@@ -80,12 +86,8 @@ int main()
 
 			/** Find y position of note */
 			PENTA_findNote(f0);
-
 			PENTA_graph();
 		}
-		/** */
-
-		/** Draw little squares to indicate tempo */
 	}
 }
 

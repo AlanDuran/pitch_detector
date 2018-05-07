@@ -91,3 +91,8 @@ void DSP_clearSC1()
 {
 	ADC0->SC1[0] &= ~(ADC_SC1_ADCH_MASK);
 }
+
+void ADC0_stop()
+{
+	ADC0->SC1[0] |=  0x1f;
+}

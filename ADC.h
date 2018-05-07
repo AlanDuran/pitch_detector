@@ -101,4 +101,6 @@ void startConversion(uint8 channel);
 
 void DSP_clearSC1();
 
+void ADC0_stop();
+
 #endif /* PIT_H_ */

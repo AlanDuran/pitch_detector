@@ -9,6 +9,7 @@
 #include "DSP.h"
 #include "PIT.h"
 #include "NVIC.h"
+#include "menu.h"
 #include "LCD_ILI9341.h"
 
 #define SYSTEM_CLOCK 60000000
@@ -23,12 +24,15 @@
  * 	First penta starts on y 40, in between lines there is a diff of 15
  */
 
+float32 tempo = 80.00f;
 uint16 timeCounter = 65535;
 uint8 topOrBottom;
 uint8 checkTimeCounter;
 float32 avgData;
 uint8 tempoCounter;
 static uint8 checkingTime_flag;
+
+static uint8 maxSaves = 2;
 
 static uint8 saving_position;/**< Counter that indicates the position of the note being saved*/
 
@@ -38,7 +42,7 @@ uint8 clearPenta_flag;
  * 	Will have a buffer of two in case we need the extra space.
  */
 
-static PENTA_savedNotes_type savedNotes[MAX_ENTRIES][MAX_SAVED_NOTES];
+static PENTA_savedNotes_type savedNotes[MAX_SAVED_NOTES];
 
 /*
  * 	New functions:
@@ -48,23 +52,23 @@ static PENTA_savedNotes_type savedNotes[MAX_ENTRIES][MAX_SAVED_NOTES];
 
 void PENTA_saveYPos(uint8 y_pos)
 {
-	savedNotes[0][saving_position].y_pos =  y_pos;
+	savedNotes[saving_position].y_pos =  y_pos;
 }
 
 void PENTA_saveXPos(uint8 x_pos)
 {
-	savedNotes[0][saving_position].x_pos =  x_pos;
+	savedNotes[saving_position].x_pos =  x_pos;
 }
 
 void PENTA_saveSharp(uint8 sharp)
 {
-	savedNotes[0][saving_position].sharp =  sharp;
+	savedNotes[saving_position].sharp =  sharp;
 }
 
 
 void PENTA_graph()
 {
-	if(FALSE != savedNotes[0][saving_position].y_pos)
+	if(FALSE != savedNotes[saving_position].y_pos)
 	{
 		if(TRUE == PENTA_getClearPenta())
 		{
@@ -76,9 +80,14 @@ void PENTA_graph()
 			EnableInterrupts;
 		}
 
-		LCD_ILI9341_writeBigLetter(savedNotes[0][saving_position].x_pos,
-								   savedNotes[0][saving_position].y_pos, 0, WHITE);
+		LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
+								   savedNotes[saving_position].y_pos, 0, WHITE);
+
 		saving_position++;
+		if(B1a == getMenuState() && saving_position >= maxSaves*16)
+		{
+			stopInterrupts();
+		}
 	}
 	else
 	{
@@ -287,4 +296,41 @@ uint8 PENTA_convertTimeToBeats(uint8 duration)
 	}
 
 	return result;
+}
+
+void PENTA_increaseTempo()
+{
+	tempo = (tempo + 5 > 120)? 120 : tempo + 5;
+	PENTA_restartPit();
+}
+
+void PENTA_decreaseTempo()
+{
+	tempo = (tempo - 5 < 60)? 60 : tempo - 5;
+	PENTA_restartPit();
+}
+
+void PENTA_restartPit()
+{
+	float32 period = 60/tempo/4;
+	PIT_delay(PIT_1, SYSTEM_CLOCK, period);
+}
+
+void PENTA_clearSaves()
+{
+	for(uint8 index = 0; index < MAX_SAVED_NOTES; index++)
+	{
+		savedNotes[index].x_pos = FALSE;
+		savedNotes[index].y_pos = FALSE;
+		savedNotes[index].sharp = FALSE;
+	}
+	/** resart top and bottom and counter*/
+	tempoCounter = FALSE;
+	topOrBottom = FALSE;
+	saving_position = FALSE;
+}
+
+void PENTA_setMaxSaves(uint8 new_max)
+{
+	maxSaves = new_max;
 }

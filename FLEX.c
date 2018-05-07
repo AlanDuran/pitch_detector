@@ -74,5 +74,5 @@ void FTM3_turnOff()
 
 void FTM3_turnOn()
 {
-	FTM1->SC |= FLEX_TIMER_CLKS_1;
+	FTM3->SC |= FLEX_TIMER_CLKS_1;
 }
