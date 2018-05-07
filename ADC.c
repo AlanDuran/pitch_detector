@@ -6,7 +6,7 @@
  * 			Dario Hoyo
  *      	Alan Duran
  * \date
- * 			19/03/18
+ * 			7/05/18
  *
  *      */
 
@@ -24,8 +24,9 @@
 void ADC0_IRQHandler()
 {
 	ADC0->SC1[0] |=  0x1f;
-	//If the value is greater than [something], start saving values
-	/** If not saving, check if it should save*/
+	/** If the value is greater than [something], start saving values
+	 * 	If not saving, check if it should save
+	 */
 	if(FALSE == DSP_getSavingFlag())
 	{
 		DSP_checkAttack(ADC0_readValue());	//Detects
@@ -37,6 +38,10 @@ void ADC0_IRQHandler()
 		DSP_saveNote(ADC0_readValue());		//If note is detected, saves it
 	}
 
+	/** Sets the new threshold by averaging some of the values of input.
+	 * 	This works so another value is detected if it is greater than the previous set of
+	 * 	averaged values.
+	 */
 	DSP_setNewAttackThresh(ADC0_readValue());
 }
 
@@ -89,10 +94,12 @@ void startConversion(uint8 channel)
 
 void DSP_clearSC1()
 {
+	/** Clears the ADCH register */
 	ADC0->SC1[0] &= ~(ADC_SC1_ADCH_MASK);
 }
 
 void ADC0_stop()
 {
+	/** Stops ADC by setting all ADCH bits to 1 */
 	ADC0->SC1[0] |=  0x1f;
 }

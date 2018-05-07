@@ -32,7 +32,9 @@ float32 avgData;
 uint8 tempoCounter;
 static uint8 checkingTime_flag;
 
+/** Variables to manipulate printing of saved partitures */
 static uint8 maxSaves = 2;
+static uint8 currPage;
 
 static uint8 saving_position;/**< Counter that indicates the position of the note being saved*/
 
@@ -65,7 +67,6 @@ void PENTA_saveSharp(uint8 sharp)
 	savedNotes[saving_position].sharp =  sharp;
 }
 
-
 void PENTA_graph()
 {
 	if(FALSE != savedNotes[saving_position].y_pos)
@@ -73,15 +74,23 @@ void PENTA_graph()
 		if(TRUE == PENTA_getClearPenta())
 		{
 			DisableInterrupts;
-			LCD_ILI9341_fillScreen(ILI9341_CYAN);
-			LCD_ILI9341_drawPartiture(FALSE);
-			LCD_ILI9341_drawPartiture(TRUE);
+			PENTA_clearPage();
 			PENTA_clearClearPenta();
+			printTempo();
 			EnableInterrupts;
 		}
 
-		LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
-								   savedNotes[saving_position].y_pos, 0, WHITE);
+		if(TRUE == savedNotes[saving_position].sharp)
+		{
+			LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
+									   savedNotes[saving_position].y_pos, 0, WHITE_SHARP);
+		}
+		else
+		{
+			LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
+									   savedNotes[saving_position].y_pos, 0, WHITE);
+		}
+
 
 		saving_position++;
 		if(B1a == getMenuState() && saving_position >= maxSaves*16)
@@ -89,13 +98,6 @@ void PENTA_graph()
 			stopInterrupts();
 		}
 	}
-	else
-	{
-
-	}
-
-
-
 }
 
 void PENTA_stall()
@@ -328,9 +330,67 @@ void PENTA_clearSaves()
 	tempoCounter = FALSE;
 	topOrBottom = FALSE;
 	saving_position = FALSE;
+	currPage = FALSE;
+}
+
+void PENTA_nextPage()
+{
+	/** print next page */
+	if(maxSaves/2 - 1 > currPage)
+	{
+		currPage++;
+		PENTA_clearPage();
+		PENTA_printPage();
+	}
+}
+
+void PENTA_prevPage()
+{
+	/** print prev page */
+	if(FALSE != currPage)
+	{
+		currPage--;
+		PENTA_clearPage();
+		PENTA_printPage();
+	}
+}
+
+void PENTA_printPage()
+{
+	uint8 index = currPage*32;
+	for(; index < currPage*32 + 32; index++)
+	{
+		if(TRUE == savedNotes[index].sharp)
+		{
+			LCD_ILI9341_writeBigLetter(savedNotes[index].x_pos,
+									   savedNotes[index].y_pos, 0, WHITE_SHARP);
+		}
+		else
+		{
+			LCD_ILI9341_writeBigLetter(savedNotes[index].x_pos,
+												   savedNotes[index].y_pos, 0, WHITE);
+		}
+	}
+}
+
+void PENTA_clearPage()
+{
+	LCD_ILI9341_fillScreen(ILI9341_CYAN);
+	LCD_ILI9341_drawPartiture(FALSE);
+	LCD_ILI9341_drawPartiture(TRUE);
 }
 
 void PENTA_setMaxSaves(uint8 new_max)
 {
 	maxSaves = new_max;
+}
+
+uint8 PENTA_getTempo()
+{
+	return tempo;
+}
+
+uint8 PENTA_getCurrPage()
+{
+	return currPage;
 }

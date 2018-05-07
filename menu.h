@@ -146,4 +146,12 @@ void startInterrupts();
 
 void stopInterrupts();
 
+void printTempo();
+
+void clearTempo();
+
+void printPage();
+
+void clearPage();
+
 #endif /* MENU_H_ */

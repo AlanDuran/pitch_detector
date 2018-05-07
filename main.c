@@ -76,7 +76,7 @@ int main()
 			GPIO_clearIRQStatus(GPIO_C);
 		}
 		/** Do correlations and save stuff */
-		if((B0 == getMenuState() || B1a == getMenuState())&& FALSE != DSP_getGeneralStatus())
+		if((B0 == getMenuState() || B1a == getMenuState()) && FALSE != DSP_getGeneralStatus())
 		{
 			/** Do this without saving*/
 			DSP_autocor();

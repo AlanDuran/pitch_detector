@@ -1,29 +1,28 @@
-/*
- * DSP.c
+/**
+ * \file
+ * 			DSP.c
  *
- *  Created on: Apr 28, 2018
- *      Author: kanta
- */
+ * \authors
+ * 			Dario Hoyo
+ *      	Alan Duran
+ * \date
+ * 			7/05/18
+ *
+ *      */
 
 #include "DSP.h"
 #include "PIT.h"
 #include "PENTA.h"
 
 
-#define RES_16_BIT 65535
-#define SUPPLY_V 3.3f
-#define ATTACK_THRESH .55f
-#define LOW_ATTACK_THRESH .3f
-#define MAX_BUFFERS 16
-#define THRESH_OFF .4f
+uint16 noteBufferPointer; /**< Index pointing to the position of a value to be saved */
 
-uint16 noteBufferPointer;
-
+/** Flags */
 uint8 savingData_flag;
 uint8 checkingTime_flag;
 uint8 autoCorCo_flag = TRUE;
 
-uint8 currentTempo;
+uint8 currentTempo; /** Value to check if it is not saving on the same beat. */
 
 /** Variables to set new threshold*/
 float32 new_threshold;
@@ -33,40 +32,21 @@ uint8 threshold_counter;
 /** Flag that indicates to take duration from diff between attacks*/
 uint8 duration_attacks_flag = TRUE;
 
+/** Indexes pointing to the buffer being saved. */
 uint16 buff_no;
 uint16 corBuff_no;
+
+/** Buffers to save data and perform an autocorrelation. */
 float32 noteBuffer[MAX_BUFFERS][MAX_SAMPLES] = {0};
 float32 corrBuffer[MAX_SAMPLES] = {0};
 
-typedef union
-{
-	struct
-	{
-		uint16 status1 : 1;
-		uint16 status2 : 1;
-		uint16 status3 : 1;
-		uint16 status4 : 1;
-		uint16 status5 : 1;
-		uint16 status6 : 1;
-		uint16 status7 : 1;
-		uint16 status8 : 1;
-		uint16 status9 : 1;
-		uint16 status10 : 1;
-		uint16 status11 : 1;
-		uint16 status12 : 1;
-		uint16 status13 : 1;
-		uint16 status14 : 1;
-		uint16 status15 : 1;
-		uint16 status16 : 1;
-	};
-	uint16 general_status;
-}Buffer_status_type;
-
+/** Union of status (bitmap) */
 Buffer_status_type buffer_status;
 
 float32 DSP_digToFloat(uint16 data)
 {
-	return (data*SUPPLY_V/RES_16_BIT) - SUPPLY_V/2; 	/** Multiplies by supply voltage and divides by pow(2,16) - 1*/
+	/** Multiplies by supply voltage and divides by pow(2,16) - 1*/
+	return (data*SUPPLY_V/RES_16_BIT) - SUPPLY_V/2;
 }
 
 uint8 DSP_checkAttack(uint16 data)
@@ -103,6 +83,7 @@ void DSP_saveNote(uint16 data)
 	}
 }
 
+
 void DSP_autocor()
 {
 	uint8 currCorBuff = DSP_getCorBuffNo();
@@ -135,12 +116,17 @@ uint16 DSP_detectPeak()
 	float32 prev_value = corrBuffer[0];
 	float32 curr_value = corrBuffer[1];
 
+	/**
+	 * 	Waits for value to go down an then start going up.
+	 * 	This is done to avoid receiving the first peak on index zero.
+	 */
 	for(index = 2; prev_value > curr_value; index++)
 	{
 		prev_value = curr_value;
 		curr_value = corrBuffer[index];
 	}
 
+	/** After value starts going up again, start detecting peak. */
 	peak = curr_value;
 	for(; index < MAX_SAMPLES; index++)
 	{
@@ -177,6 +163,7 @@ void DSP_setNewAttackThresh(uint16 data)
 
 void DSP_clearBuffer()
 {
+	/** Loop to clear buffer */
 	for(uint16 index = 0; index < MAX_SAMPLES; index++)
 	{
 		corrBuffer[index] = FALSE;
@@ -185,28 +172,28 @@ void DSP_clearBuffer()
 
 float32 DSP_findPitch(uint16 pitch_period)
 {
+	/** Finds pitch by dividing the sample rate by the index received in the detectPeak. */
 	return SAMPLE_FS/pitch_period;
 }
 
 uint8 DSP_getSavingFlag()
 {
+	/** flag that indicates data should be saved */
 	return savingData_flag;
-}
-
-uint8 DSP_getAutoCorFlag()
-{
-	return autoCorCo_flag;
 }
 
 uint8 DSP_getBuffNo()
 {
+	/** Returns number of buffer by using a modulo to avoid validation */
 	return buff_no%MAX_BUFFERS;
 }
 
 uint8 DSP_getCorBuffNo()
 {
+	/* */
 	return corBuff_no%MAX_BUFFERS;
 }
+
 
 void DSP_setStatus(uint8 status_no)
 {

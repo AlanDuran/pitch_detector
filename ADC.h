@@ -10,7 +10,7 @@
  *     	Alan Duran
  *
  * \date
- * 		20/03/2018
+ * 		05/07/2018
  *
  *      */
 
@@ -99,7 +99,15 @@ uint8 ADC0_conversionComplete();
  */
 void startConversion(uint8 channel);
 
+/**
+ * 	\brief sets ADHC registers to 0 so it can be set to something else.
+ */
+
 void DSP_clearSC1();
+
+/**
+ * 	\brief Sets ADHC register bits to 1 so the module is stopped.
+ */
 
 void ADC0_stop();
 

@@ -20,7 +20,7 @@ static uint8 currentX;
 static uint8 currentCompass;
 
 /**Pointer to function containing all the possible states*/
-void (*fp[B3 + 1])() = {menu, b0, b1, b1a, b2, b3};
+void (*fp[B3])() = {menu, b0, b1, b1a, b2};
 
 /**Executes current state*/
 void updateMenu()
@@ -53,6 +53,7 @@ void menu()
 {	/** B0: FREE MODE */
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B0))
 	{
+		PENTA_clearSaves();
 		currentState = B0;
 		printB0();
 		/**
@@ -62,6 +63,8 @@ void menu()
 		 * 	start flex timer
 		 */
 		startInterrupts();
+		/** Print tempo */
+		printTempo();
 	}
 	/** B1: SAVE*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
@@ -69,15 +72,14 @@ void menu()
 		currentState = B1;
 		printB1();
 	}
-	/** B2: CHANGE TEMPO */
+	/** B2: SEE SAVED */
 	else if(FALSE == GPIO_readPIN(GPIO_C, PIN_B2))
 	{
+		PENTA_clearPage();
+		PENTA_printPage();
+		clearPage();
+		printPage();
 		currentState = B2;
-	}
-	/** B3: SEE SAVED */
-	else if(FALSE == GPIO_readPIN(GPIO_C, PIN_B3))
-	{
-		currentState = B3;
 	}
 }
 
@@ -87,19 +89,24 @@ void b0()
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B0))
 	{ 	/**Printing block screen*/
 		PENTA_decreaseTempo();
+		clearTempo();
+		printTempo();
 	}
 	/** B1: LOWER TEMPO */
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
 	{
 		PENTA_increaseTempo();
+		clearTempo();
+		printTempo();
 	}
 
 	/** B2: EXIT TO MENU*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B2))
 	{
+		stopInterrupts();
+		PENTA_clearSaves();
 		currentState = MENU;
 		printMenu();
-		stopInterrupts();
 		/** Clear saves xd*/
 	}
 }
@@ -113,6 +120,7 @@ void b1()
 		currentState = B1a;
 		PENTA_clearSaves();
 		startInterrupts();
+		printTempo();
 	}
 	/**If B1: INCREASE COMPASES*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
@@ -122,6 +130,7 @@ void b1()
 		saveLimit = (saveLimit + 2 > 10)? 10: saveLimit + 2;
 		uint8_to_string(saveLimit);
 		LCD_ILI9341_sendString(X_8, Y_1, ILI9341_BLACK, string);
+		PENTA_setMaxSaves(saveLimit);
 	}
 	/**If B1: DECREASE COMPASES*/
 	else if(FALSE == GPIO_readPIN(GPIO_C, PIN_B2))
@@ -131,6 +140,7 @@ void b1()
 		saveLimit = (saveLimit - 2 < 2)? 2 : saveLimit - 2;
 		uint8_to_string(saveLimit);
 		LCD_ILI9341_sendString(X_8, Y_1, ILI9341_BLACK, string);
+		PENTA_setMaxSaves(saveLimit);
 	}
 }
 
@@ -140,80 +150,64 @@ void b1a()
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B0))
 	{ 	/**Printing block screen*/
 		PENTA_decreaseTempo();
+		clearTempo();
+		printTempo();
 	}
 	/**If B1: INCREASE TEMPO*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
 	{
 		PENTA_increaseTempo();
+		clearTempo();
+		printTempo();
 	}
 
 	/**If B2: EXIT*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B2))
 	{
+		stopInterrupts();
 		currentState = MENU;
 		printMenu();
-		stopInterrupts();
 	}
 }
 
 void b2()
 {
-	/**If B0 block system*/
+	/**If B0: PREV PAGE*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B0))
-	{ 	/**Printing block screen*/
-		LCD_ILI9341_drawPartiture(FALSE);
-		LCD_ILI9341_drawPartiture(TRUE);
-		currentState = MENU;
-		//START PIT??
+	{
+		/** If currPage is first page, do nothing*/
+		PENTA_prevPage();
+		clearPage();
+		printPage();
 	}
-	/**If B1 advance to alarm configuration*/
+	/**If B1: NEXT PAGE*/
 	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
 	{
-		currentBPM++;
-		//print;
+		/** If currPage is last page, do nothing*/
+		PENTA_nextPage();
+		clearPage();
+		printPage();
 	}
-	/**If B1 advance to temperature configuration*/
+	/**If B2: EXIT*/
 	else if(FALSE == GPIO_readPIN(GPIO_C, PIN_B2))
 	{
-		currentBPM--;
-	}
-}
-
-void b3()
-{
-	/**If B0 block system*/
-	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B0))
-	{ 	/**Printing block screen*/
-		//START PIT
-	}
-	/**If B1 advance to alarm configuration*/
-	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
-	{
-		//STOP PIT
-	}
-
-	/**If B1 advance to alarm configuration*/
-	if(FALSE == GPIO_readPIN(GPIO_C, PIN_B1))
-	{
-		currentState = MENU;
 		printMenu();
-		//STOP PIT???
+		currentState = MENU;
 	}
 }
+
 
 void printMenu()
 {
 	uint8 s0[] = "Selecciona:";
 	uint8 s1[] = "0) Comenzar";
 	uint8 s2[] = "1) Guardar";
-	uint8 s3[] = "2) Cambiar BPM";
-	uint8 s4[] = "3) Ver partituras";
+	uint8 s3[] = "2) Ver partituras";
 	LCD_ILI9341_fillScreen(ILI9341_CYAN);
 	LCD_ILI9341_sendString(X_0, Y_1, ILI9341_BLACK, s0);
 	LCD_ILI9341_sendString(X_0, Y_3, ILI9341_BLACK, s1);
 	LCD_ILI9341_sendString(X_0, Y_4, ILI9341_BLACK, s2);
 	LCD_ILI9341_sendString(X_0, Y_5, ILI9341_BLACK, s3);
-	LCD_ILI9341_sendString(X_0, Y_6, ILI9341_BLACK, s4);
 }
 
 /**This function just prints the corresponding strings*/
@@ -244,24 +238,7 @@ void printB1()
 
 void printB2()
 {
-	uint8 s1[] = "BPM = ";
-	uint8_to_string(saveLimit);
-	uint8 s2[] = "compases";
-	uint8 s3[] = "0) Comenzar";
-	uint8 s4[] = "1) Aumentar";
-	uint8 s5[] = "2) Disminuir";
 
-	LCD_ILI9341_fillScreen(ILI9341_DARKCYAN);
-	LCD_ILI9341_sendString(X_0, Y_1, ILI9341_BLACK, s1);
-	LCD_ILI9341_sendString(X_8, Y_1, ILI9341_BLACK, string);
-	LCD_ILI9341_sendString(X_0, Y_2, ILI9341_BLACK, s2);
-	LCD_ILI9341_sendString(X_0, Y_4, ILI9341_BLACK, s3);
-	LCD_ILI9341_sendString(X_0, Y_6, ILI9341_BLACK, s4);
-	LCD_ILI9341_sendString(X_0, Y_8, ILI9341_BLACK, s5);
-}
-
-void printB3()
-{
 }
 
 void updateB0(uint8 currentFreq)
@@ -341,4 +318,32 @@ void startInterrupts()
 {
 	FTM3_turnOn();
 	PENTA_startTimeMeassure();
+}
+
+void printTempo()
+{
+	uint8 s0[] = "Tempo:";
+	uint8 s1[] = "BPM";
+	uint8_to_string(PENTA_getTempo());
+	LCD_ILI9341_sendString(X_1, Y_19, ILI9341_BLACK, s0);
+	LCD_ILI9341_sendString(X_7, Y_19, ILI9341_BLACK, string);
+	LCD_ILI9341_sendString(X_10, Y_19, ILI9341_BLACK, s1);
+}
+
+void clearTempo()
+{
+	LCD_ILI9341_drawShape(X_1, Y_19, 240, 320, ILI9341_CYAN);
+}
+
+void printPage()
+{
+	uint8 s0[] = "Pag";
+	uint8_to_string(PENTA_getCurrPage() + 1);
+	LCD_ILI9341_sendString(X_3, Y_19, ILI9341_BLACK, s0);
+	LCD_ILI9341_sendString(X_7, Y_19, ILI9341_BLACK, string);
+}
+
+void clearPage()
+{
+	LCD_ILI9341_drawShape(X_1, Y_19, 240, 320, ILI9341_CYAN);
 }

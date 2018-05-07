@@ -42,7 +42,7 @@
 #define DIFF21 49.39f
 #define DIFF22 52
 
-#define CONSTAT_SUB 1
+#define CONSTAT_SUB 0.8F
 
 /** Notes frequencies */
 #define C_4 261.63f
@@ -184,5 +184,17 @@ void PENTA_restartPit();
 void PENTA_clearSaves();
 
 void PENTA_setMaxSaves(uint8 new_max);
+
+void PENTA_clearPage();
+
+void PENTA_printPage();
+
+void PENTA_prevPage();
+
+void PENTA_nextPage();
+
+uint8 PENTA_getTempo();
+
+uint8 PENTA_getCurrPage();
 
 #endif /* PENTA_H_ */
