@@ -15,7 +15,7 @@
 #define ATTACK_THRESH .55f
 #define LOW_ATTACK_THRESH .3f
 #define MAX_BUFFERS 16
-#define THRESH_OFF .3f
+#define THRESH_OFF .4f
 
 uint16 noteBufferPointer;
 
@@ -75,29 +75,13 @@ uint8 DSP_checkAttack(uint16 data)
 	uint8 isAttack =(DSP_digToFloat(data) >= new_threshold + THRESH_OFF);
 	/** If so, turns on flag that indicates to save values*/
 
-	/** If silence, save duration with difference in times and turn on a flag that indicates
-	 * 	not to take duration from difference between attacks
+	/** If it lasted 16 tempos (whole note), set tempo to whole note
 	 */
-	if (new_threshold == LOW_ATTACK_THRESH && currentTempo != FALSE && TRUE == duration_attacks_flag)
-	{
-		duration_attacks_flag = FALSE;
-		/** Save data */
-		PENTA_saveDuration(); /**< Need to be careful, the first entry might record this forever*/
-	}
-
 	if(TRUE == isAttack && PENTA_getTimeCounter() != currentTempo)
 	{
-		if(TRUE == duration_attacks_flag)
-		{
-			/** Save last note's duration with current time*/
-			PENTA_saveDuration();
-		}
-		/** Save starting time on current note */
-
-		PENTA_saveStartingTime();
+		/** Indicate to start saving and check if its not the same tempo */
 		savingData_flag = TRUE;
 		currentTempo = PENTA_getTimeCounter();
-		duration_attacks_flag = TRUE; /**< Reset the flag to indicate it can measure between attacks */
 	}
 	return isAttack;
 }

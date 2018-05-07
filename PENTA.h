@@ -90,9 +90,8 @@ typedef struct
 typedef struct
 {
 	uint8 y_pos;
-	uint8 top_bottom;
-	uint8 start_time;
-	uint8 duration;
+	uint8 x_pos;
+	uint8 sharp;
 }PENTA_savedNotes_type;
 
 /*
@@ -144,6 +143,8 @@ typedef struct
 	uint8 duration;
 }ToBePlayedNote_type;
 
+void PENTA_stall();
+
 void PENTA_saveYPos(uint8 y_pos);
 
 void PENTA_saveTopBottom(uint8 top_bottom);
@@ -154,7 +155,7 @@ void PENTA_saveDuration(void);
 
 void PENTA_graph();
 
-sint8 PENTA_findNote(float32 freq);
+void PENTA_findNote(float32 freq);
 
 void PENTA_startTimeMeassure();
 

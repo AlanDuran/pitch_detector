@@ -79,13 +79,10 @@ int main()
 			DSP_clearBuffer();
 
 			/** Find y position of note */
-			uint8 nota = PENTA_findNote(f0);
-			uint8 bottom = PENTA_getTopOrBottom();
+			PENTA_findNote(f0);
 
-			PENTA_saveYPos(nota);
-			PENTA_saveTopBottom(bottom);
+			PENTA_graph();
 		}
-
 		/** */
 
 		/** Draw little squares to indicate tempo */
