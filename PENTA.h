@@ -1,9 +1,18 @@
-/*
- * PENTA.h
+/**
+ * \file
+ * 		PENTA.h
  *
- *  Created on: May 3, 2018
- *      Author: kanta
- */
+ * \brief
+ * 		This is a driver for the internal ADC of a K64F board
+ *
+ * \authors
+ *  	Dario Hoyo
+ *     	Alan Duran
+ *
+ * \date
+ * 		05/07/2018
+ *
+ *      */
 
 #ifndef PENTA_H_
 #define PENTA_H_
@@ -68,11 +77,21 @@
 #define GS5 830.61f
 #define A5 880
 
-#define BOTTOM_OFF 134
+#define BOTTOM_OFF 134 /**< Offset to print in the bottom pentagram */
 
-#define AVG_MAX_SAMPLES 250
+#define AVG_MAX_SAMPLES 250 /**< Max samples for averaging */
 
-#define MAX_NOTES 22
+#define MAX_NOTES 22		/**< Maximum different frequencies*/
+
+#define SYSTEM_CLOCK 60000000 /**< Clock that PIT uses */
+#define LOW_TEST_TEMPO 80.00f /**< Starting tempo */
+#define MAX_SAVED_NOTES 240	  /**< Maximum notes you can save */
+#define TEMPO_DIV 16		/**< Number of virtual beats */
+#define START_MAX_SAVES 2	/**< Starting number for number of compases*/
+#define SEC_MIN 60			/**< Number of seconds in a minute (used in operation) */
+#define TEMPO_ATTACK_DIV 4	/**< Divider of tempo to create virtual beats */
+
+#define DIFF_DIV 2 /**< Divider of the differences */
 
 
 /** Type of structure to identify the note with the fundamental frequency */
@@ -99,102 +118,216 @@ typedef struct
 * 	31.12, 32.96, 34.92, 37, 39.21, 41.53, 44, 46.62, 49.39, 52.
 */
 
+/** Defines of the positions of the notes in the pentagram */
+
+#define POS_C4 115
+#define POS_D4 108
+#define POS_E4 100
+#define POS_F4 93
+#define POS_G4 85
+#define POS_A4 78
+#define POS_B4 70
+#define POS_C5 63
+#define POS_D5 55
+#define POS_E5 48
+#define POS_F5 40
+#define POS_G5 33
+#define POS_A5 25
+
+/** Table that has all the necessary information to identify the notes and print them */
+
 static const PENTA_note_type Notes[MAX_NOTES] =
 		{
-				{C_4, 0, 115, DIFF1/2 - CONSTAT_SUB},
-				{CS4, 1, 115, DIFF2/2 - CONSTAT_SUB},
-				{D4, 0, 108, DIFF3/2 - CONSTAT_SUB},
-				{DS4, 1, 108, DIFF4/2 - CONSTAT_SUB},
-				{E4, 0, 100, DIFF5/2 - CONSTAT_SUB},
-				{F4, 0, 93, DIFF6/2 - CONSTAT_SUB},
-				{FS4, 1, 93, DIFF7/2 - CONSTAT_SUB},
-				{G4, 0, 85, DIFF8/2 - CONSTAT_SUB},
-				{GS4, 1, 85, DIFF9/2 - CONSTAT_SUB},
-				{A4, 0, 78, DIFF10/2 - CONSTAT_SUB},
-				{AS4, 1, 78, DIFF11/2 - CONSTAT_SUB},
-				{B4, 0, 70, DIFF12/2 - CONSTAT_SUB},
-				{C_5, 0, 63, DIFF13/2 - CONSTAT_SUB},
-				{CS5, 1, 63, DIFF14/2 - CONSTAT_SUB},
-				{D5, 0, 55, DIFF15/2 - CONSTAT_SUB},
-				{DS5, 1, 55, DIFF16/2 - CONSTAT_SUB},
-				{E5, 0, 48, DIFF17/2 - CONSTAT_SUB},
-				{F5, 0, 40, DIFF18/2 - CONSTAT_SUB},
-				{FS5, 1, 40, DIFF19/2 - CONSTAT_SUB},
-				{G5, 0, 33, DIFF20/2 - CONSTAT_SUB},
-				{GS5, 1, 33, DIFF21/2 - CONSTAT_SUB},
-				{A5, 0, 25, DIFF22/2 - CONSTAT_SUB},
+				{C_4, FALSE, POS_C4, DIFF1/DIFF_DIV - CONSTAT_SUB},
+				{CS4, TRUE, POS_C4, DIFF2/DIFF_DIV - CONSTAT_SUB},
+				{D4, FALSE, POS_D4, DIFF3/DIFF_DIV - CONSTAT_SUB},
+				{DS4, TRUE, POS_D4, DIFF4/DIFF_DIV - CONSTAT_SUB},
+				{E4, FALSE, POS_E4, DIFF5/DIFF_DIV - CONSTAT_SUB},
+				{F4, FALSE, POS_F4, DIFF6/DIFF_DIV - CONSTAT_SUB},
+				{FS4, TRUE, POS_F4, DIFF7/DIFF_DIV - CONSTAT_SUB},
+				{G4, FALSE, POS_G4, DIFF8/DIFF_DIV - CONSTAT_SUB},
+				{GS4, TRUE, POS_G4, DIFF9/DIFF_DIV - CONSTAT_SUB},
+				{A4, FALSE, POS_A4, DIFF10/DIFF_DIV - CONSTAT_SUB},
+				{AS4, TRUE, POS_A4, DIFF11/DIFF_DIV - CONSTAT_SUB},
+				{B4, FALSE, POS_B4, DIFF12/DIFF_DIV - CONSTAT_SUB},
+				{C_5, FALSE, POS_C5, DIFF13/DIFF_DIV - CONSTAT_SUB},
+				{CS5, TRUE, POS_C5, DIFF14/DIFF_DIV - CONSTAT_SUB},
+				{D5, FALSE, POS_D5, DIFF15/DIFF_DIV - CONSTAT_SUB},
+				{DS5, TRUE, POS_D5, DIFF16/DIFF_DIV - CONSTAT_SUB},
+				{E5, FALSE, POS_E5, DIFF17/DIFF_DIV - CONSTAT_SUB},
+				{F5, FALSE, POS_F5, DIFF18/DIFF_DIV - CONSTAT_SUB},
+				{FS5, TRUE, POS_F5, DIFF19/DIFF_DIV - CONSTAT_SUB},
+				{G5, FALSE, POS_G5, DIFF20/DIFF_DIV - CONSTAT_SUB},
+				{GS5, TRUE, POS_G5, DIFF21/DIFF_DIV - CONSTAT_SUB},
+				{A5, FALSE, POS_A5, DIFF22/DIFF_DIV - CONSTAT_SUB},
 
 		};
 
-
 /**
- * 	\brief Structure referencing notes
+ *	\brief Save the position of the note in the y axis
  *
- * 	This indicates the id of the note to be played next and it's duration.
- * 	The duration indicated here goes from 1 to 16, with a sensibility of a sixteenth note.
- * 	So a duration of 2 would equal an eight, 4 would equal a quarter note, 8 would equal a half note
- * 	and 16 would equal a whole note.
+ *	\param[in] y_pos Y position
  */
-
-typedef struct
-{
-	sint8 id;
-	uint8 sharp;
-	uint8 duration;
-}ToBePlayedNote_type;
-
-void PENTA_stall();
 
 void PENTA_saveYPos(uint8 y_pos);
 
-void PENTA_saveTopBottom(uint8 top_bottom);
+/**
+ *	\brief Save the position of the note in the x axis
+ *
+ *	\param[in] y_pos X position
+ */
 
-void PENTA_saveStartingTime(void);
+void PENTA_saveXPos(uint8 x_pos);
 
-void PENTA_saveDuration(void);
+/**
+ *	\brief Save whether the note is sharp or not
+ *
+ *	\param[in] y_pos Sharp (TRUE or FALSE)
+ */
+
+void PENTA_saveSharp(uint8 sharp);
+
+/**
+ * 	\brief Graph with the saving information and increment the index of the saving.
+ *
+ * 	If the menu is in state of saving, this will turn off once the desired notes were reached.
+ */
 
 void PENTA_graph();
 
+/**
+ * 	\brief identifies the note with the table and saves the values in the index.
+ *
+ * 	\param[in] freq Fundamental frequency of the note that will be compared with the values of the table.
+ */
+
 void PENTA_findNote(float32 freq);
+
+/**
+ * 	\brief Start the pit with the desired tempo.
+ */
 
 void PENTA_startTimeMeassure();
 
+/**
+ * 	\brief Graphs the tempo each four beats (since the rest are virtual for other processes)
+ */
+
 void PENTA_graphTempo();
+
+/**
+ * 	\brief Count each time the pit interrupts.
+ */
 
 void PENTA_timeCount();
 
+/**
+ * 	\brief Stop the PIT.
+ */
+
 void PENTA_stopTimeMeassure();
 
-uint8 PENTA_getTempoCounterPosition();
-
-uint8 PENTA_getTimeCounter();
-
-uint8 PENTA_getTopOrBottom();
-
-uint8 PENTA_getClearPenta();
+/**
+ * 	\brief Clear the flag that indicates pentagram should be refreshed.
+ */
 
 void PENTA_clearClearPenta();
 
+/**
+ * 	\brief Validates tempo limit and then restarts the pit.
+ */
+
 void PENTA_increaseTempo();
+
+/**
+ * 	\brief Validates tempo limits and then restarts pit.
+ */
 
 void PENTA_decreaseTempo();
 
+/**
+ * 	\brief Calls again the pit delay function with the new parameters.
+ */
+
 void PENTA_restartPit();
+
+/**
+ * 	\brief Clears all the notes saved and counters so everything works back from scratch.
+ */
 
 void PENTA_clearSaves();
 
+/**
+ * 	\brief Set the maximum ammount of notes to be saved.
+ *
+ * 	\param[in] new_max New value to be set.
+ */
+
 void PENTA_setMaxSaves(uint8 new_max);
+
+/**
+ *	\brief Clears the page number in the bottom of the screen.
+ */
 
 void PENTA_clearPage();
 
+/**
+ * 	\brief Prints the page number in the bottom of the screen.
+ */
+
 void PENTA_printPage();
+
+/**
+ * 	\brief Returns to the previous saved notes page.
+ *
+ * 	Checks if it is a valid page number and calls the cuntion to print it with new parameters.
+ */
 
 void PENTA_prevPage();
 
+/**
+ * 	\brief Returns to the next saved notes page.
+ *
+ * 	Checks if it is a valid page number and calls the cuntion to print it with new parameters.
+ */
+
+
 void PENTA_nextPage();
+
+/**
+ * 	\return Returns the current tempo.
+ */
 
 uint8 PENTA_getTempo();
 
+/**
+ * 	\return Returns the current page.
+ */
+
 uint8 PENTA_getCurrPage();
+
+/**
+ * 	\return Returns position of the screen according to the tempoCounter.
+ */
+
+uint8 PENTA_getTempoCounterPosition();
+
+/**
+ * 	\return Returns the counter of the time counted by the pit.
+ */
+
+uint8 PENTA_getTimeCounter();
+
+/**
+ *	\return Returns whether the pentagram is saving on top or bottom using a modulo.
+ */
+
+uint8 PENTA_getTopOrBottom();
+
+/**
+ * 	\return Returns the flag that indicates if the screen should be refreshed.
+ */
+
+uint8 PENTA_getClearPenta();
 
 #endif /* PENTA_H_ */

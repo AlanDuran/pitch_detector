@@ -22,7 +22,16 @@
 #define ATTACK_THRESH .55f	/**< Value used to calibrate fixated threshold */
 #define LOW_ATTACK_THRESH .3f	/**< Value of threshold to be considered as noise */
 #define MAX_BUFFERS 16		/**< Number of buffers to save values */
-#define THRESH_OFF .3f	/**< Offset to be added to dynamic threshold */
+#define THRESH_OFF .40f	/**< Offset to be added to dynamic threshold */
+
+/** Indexes to manipulate autocorrelation */
+#define CORR_VALUE_0 0
+#define CORR_VALUE_1 1
+#define CORR_VALUE_2 2
+
+/** Constants for threshold and supply voltage */
+#define THRESH_MULT 2
+#define SUPPLY_DIV 2
 
 /**
  * 	Union of the status of the saving buffers, along with a bitmap in a structure and another value that can

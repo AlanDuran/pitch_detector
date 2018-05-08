@@ -236,19 +236,6 @@ void printB1()
 	LCD_ILI9341_sendString(X_0, Y_8, ILI9341_BLACK, s5);
 }
 
-void printB2()
-{
-
-}
-
-void updateB0(uint8 currentFreq)
-{
-}
-
-void updateB1a(uint8 currentFreq)
-{
-}
-
 void uint8_to_string(uint8 number)
 {
 	uint8 n = 1;

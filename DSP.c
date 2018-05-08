@@ -14,7 +14,6 @@
 #include "PIT.h"
 #include "PENTA.h"
 
-
 uint16 noteBufferPointer; /**< Index pointing to the position of a value to be saved */
 
 /** Flags */
@@ -46,7 +45,7 @@ Buffer_status_type buffer_status;
 float32 DSP_digToFloat(uint16 data)
 {
 	/** Multiplies by supply voltage and divides by pow(2,16) - 1*/
-	return (data*SUPPLY_V/RES_16_BIT) - SUPPLY_V/2;
+	return (data*SUPPLY_V/RES_16_BIT) - SUPPLY_V/SUPPLY_DIV;
 }
 
 uint8 DSP_checkAttack(uint16 data)
@@ -83,7 +82,6 @@ void DSP_saveNote(uint16 data)
 	}
 }
 
-
 void DSP_autocor()
 {
 	uint8 currCorBuff = DSP_getCorBuffNo();
@@ -92,11 +90,11 @@ void DSP_autocor()
 	autoCorCo_flag = FALSE;
 
 	/** Autocorrelation formula */
-	for(lag_index = 0; lag_index < MAX_SAMPLES; lag_index++)
+	for(lag_index = FALSE; lag_index < MAX_SAMPLES; lag_index++)
 	{
-		for(sample_index = 0; sample_index < MAX_SAMPLES - lag_index; sample_index++)
+		for(sample_index = FALSE; sample_index < MAX_SAMPLES - lag_index; sample_index++)
 		{
-			if(sample_index - lag_index > 0)
+			if(sample_index - lag_index > FALSE)
 			{
 				corrBuffer[lag_index] += noteBuffer[currCorBuff][sample_index]*noteBuffer[currCorBuff][sample_index - lag_index];
 			}
@@ -113,14 +111,14 @@ uint16 DSP_detectPeak()
 	uint16 index;
 
 	float32 peak;
-	float32 prev_value = corrBuffer[0];
-	float32 curr_value = corrBuffer[1];
+	float32 prev_value = corrBuffer[CORR_VALUE_0];
+	float32 curr_value = corrBuffer[CORR_VALUE_1];
 
 	/**
 	 * 	Waits for value to go down an then start going up.
 	 * 	This is done to avoid receiving the first peak on index zero.
 	 */
-	for(index = 2; prev_value > curr_value; index++)
+	for(index = CORR_VALUE_2; prev_value > curr_value; index++)
 	{
 		prev_value = curr_value;
 		curr_value = corrBuffer[index];
@@ -144,7 +142,7 @@ void DSP_setNewAttackThresh(uint16 data)
 {
 	/** Stores data only if they are positive numbers */
 	float32 newData = DSP_digToFloat(data);
-	if(newData > 0)
+	if(newData > FALSE)
 	{
 		temp_threshold += newData;
 		threshold_counter++;
@@ -153,18 +151,17 @@ void DSP_setNewAttackThresh(uint16 data)
 	if(threshold_counter == AVG_MAX_SAMPLES)
 	{
 		/** Averages and sets the new threshold*/
-		new_threshold = (temp_threshold/threshold_counter)*2;
+		new_threshold = (temp_threshold/threshold_counter)*THRESH_MULT;
 		new_threshold = (new_threshold < LOW_ATTACK_THRESH)? LOW_ATTACK_THRESH : new_threshold;
 		temp_threshold = FALSE;
 		threshold_counter = FALSE;
 	}
 }
 
-
 void DSP_clearBuffer()
 {
 	/** Loop to clear buffer */
-	for(uint16 index = 0; index < MAX_SAMPLES; index++)
+	for(uint16 index = FALSE; index < MAX_SAMPLES; index++)
 	{
 		corrBuffer[index] = FALSE;
 	}
@@ -190,13 +187,13 @@ uint8 DSP_getBuffNo()
 
 uint8 DSP_getCorBuffNo()
 {
-	/* */
+	/** Returns number of buffer by using a modulo to avoid validation */
 	return corBuff_no%MAX_BUFFERS;
 }
 
-
 void DSP_setStatus(uint8 status_no)
 {
+	/** Set Status flag*/
 	switch(status_no)
 	{
 	case 0:
@@ -253,6 +250,7 @@ void DSP_setStatus(uint8 status_no)
 
 void DSP_clearStatus(uint8 status_no)
 {
+	/** Clear status flag */
 	switch(status_no)
 	{
 	case 0:
