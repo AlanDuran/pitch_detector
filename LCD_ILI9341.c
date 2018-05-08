@@ -24,9 +24,8 @@ void LCD_ILI9341_init(void)
 
 	/**Configure the DATA_OR_CMD PIN*/
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+
 	/**Sends data*/
-
-
 	SPI_startTranference(SPI_0);
 	GPIO_clearPIN(GPIO_D, CS_PIN);
 	SPI_sendOneByte(SPI_0, ADAFRUIT_CMD);
@@ -197,14 +196,16 @@ void LCD_ILI9341_fillScreen(uint16 color)
 	uint32 index;
 
 	SPI_startTranference(SPI_0);
+	/**Configure the DATA_OR_CMD PIN*/
 	GPIO_clearPIN(GPIO_D, CS_PIN);
-
+	/**goto position [0,0]*/
 	LCD_ILI9341_gotoXY(CA_LIMIT, PA_LIMIT);
 
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, CMD_RAMWR);
 	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
 
+	/**Send the selected color 240*320 times*/
 	for(index = FALSE; index < SCREEN_SIZE; index++)
 	{
 		SPI_sendOneByte(SPI_0, color >> COLOR_SHIFT);
@@ -217,6 +218,7 @@ void LCD_ILI9341_fillScreen(uint16 color)
 
 void LCD_ILI9341_writeColor(uint16 x, uint16 y, uint16 color)
 {
+	/**Indicate position and margin*/
 	uint32 newX = (x << GOTO_XY_SHIFT16) | x;
 	uint32 newY = (y << GOTO_XY_SHIFT16) | y;
 
@@ -224,10 +226,11 @@ void LCD_ILI9341_writeColor(uint16 x, uint16 y, uint16 color)
 
 	SPI_startTranference(SPI_0);
 	GPIO_clearPIN(GPIO_D, CS_PIN);
-
+	/**Go to intoduced coordinates*/
 	LCD_ILI9341_gotoXY(newX, newY);
 
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
+	/**Write in LCD memory*/
 	SPI_sendOneByte(SPI_0, CMD_RAMWR);
 	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, color >> COLOR_SHIFT);
@@ -246,13 +249,16 @@ void LCD_ILI9341_writeBigLetter(uint16 x, uint16 y, uint16 color, uint8 letter)
 	uint32 temporalASCII = FALSE;
 	uint8 shift_helper;
 
+	/**Loop for x axis*/
 	for(x_index = x; x_index < x + X_BIGCHAR_LIMIT; x_index++)
 	{
 		shift_helper = Y_BIGCHAR_LIMIT;
+		/**Gets ASCII bitmap value to write*/
 		temporalASCII = (ASCII_BIG[letter-0x20][x_index2]);
-
+		/**Loop for y axis*/
 		for(y_index = y; y_index < y + Y_BIGCHAR_LIMIT; y_index++)
 		{
+			/**If the given position contains a pixel, write it*/
 			temporalValue = (temporalASCII >> shift_helper);
 			temporalValue =  temporalValue & TRUE;
 			if(temporalValue)
@@ -267,17 +273,20 @@ void LCD_ILI9341_writeBigLetter(uint16 x, uint16 y, uint16 color, uint8 letter)
 void LCD_ILI9341_drawNLines(uint16 y, uint16 nLines, uint16 color)
 {
 	uint32 index;
+	/**Calculate new position and margins*/
 	uint32 newY = (y << GOTO_XY_SHIFT16) | (y + nLines - 1);
 
 	SPI_startTranference(SPI_0);
 	GPIO_clearPIN(GPIO_D, CS_PIN);
 
+	/**Go to indicated position*/
 	LCD_ILI9341_gotoXY(CA_LIMIT, newY);
 
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, CMD_RAMWR);
 	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
 
+	/**Write pixel 240 times in x axis*/
 	for(index = FALSE; index < (nLines * ILI_LCD_X); index++)
 	{
 		SPI_sendOneByte(SPI_0, color >> COLOR_SHIFT);
@@ -289,15 +298,19 @@ void LCD_ILI9341_drawNLines(uint16 y, uint16 nLines, uint16 color)
 }
 
 void LCD_ILI9341_sendString(uint16 x, uint16 y, uint16 color,uint8 *characters) {
+	/**While string has some data to print*/
   while (*characters)
   {
+	  /**Write a character*/
 	  LCD_ILI9341_writeBigLetter(x, y, color,*characters++);
+	  /**Increment x position*/
 	  x += X_BIGCHAR_LIMIT;
   }
 }
 
 void LCD_ILI9341_gotoXY(uint32 x, uint32 y)
 {
+	/**Set column*/
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, CMD_CASET);
 	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
@@ -306,6 +319,7 @@ void LCD_ILI9341_gotoXY(uint32 x, uint32 y)
 	SPI_sendOneByte(SPI_0, (x >> COLOR_SHIFT) & COLOR_MASK);
 	SPI_sendOneByte(SPI_0, x & COLOR_MASK);
 
+	/**Set page*/
 	GPIO_clearPIN(GPIO_D, DATA_OR_CMD_PIN);
 	SPI_sendOneByte(SPI_0, CMD_PASET);
 	GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
@@ -319,6 +333,7 @@ void LCD_ILI9341_drawPartiture(uint8 position)
 {
 	uint32 newY;
 
+	/**Calculates initial position*/
 	if(TRUE == position)
 	{
 		newY = 135;
@@ -333,6 +348,7 @@ void LCD_ILI9341_drawPartiture(uint8 position)
 		newY += P2_OFFSET;
 	}
 
+	/**Draw 5 lines with an specific separation depending of font size*/
 	LCD_ILI9341_drawNLines(newY, TRUE, ILI9341_BLACK);
 	newY += TEXT_SIZE;
 	LCD_ILI9341_drawNLines(newY, TRUE, ILI9341_BLACK);
@@ -349,12 +365,14 @@ void LCD_ILI9341_drawShape(uint16 x, uint16 y, uint16 x2, uint16 y2, uint16 colo
 	uint32 index;
 	uint16 y_diff = y2 - y;
 	uint16 x_diff = x2 - x;
+	/**Calculates new positions and margins*/
 	uint32 newX = (x << GOTO_XY_SHIFT16) | (x + x_diff - 1);
 	uint32 newY = (y << GOTO_XY_SHIFT16) | y;
 	uint16 nLines;
 
 	y++;
 
+	/**Draws y lines*/
 	for(nLines = FALSE; nLines < y_diff; nLines++)
 	{
 		SPI_startTranference(SPI_0);
@@ -366,6 +384,7 @@ void LCD_ILI9341_drawShape(uint16 x, uint16 y, uint16 x2, uint16 y2, uint16 colo
 		SPI_sendOneByte(SPI_0, CMD_RAMWR);
 		GPIO_setPIN(GPIO_D, DATA_OR_CMD_PIN);
 
+		/**Draws x pixels*/
 		for(index = FALSE; index < x_diff; index++)
 		{
 			SPI_sendOneByte(SPI_0, color >> COLOR_SHIFT);

@@ -11,13 +11,8 @@
 #include "ADC.h"
 
 static uint8 currentState = MENU;
-static uint8 currentBPM = INITIAL_BPM;
-static float32 currentPIT = INITIAL_BPM / MIN;
-static uint8 savedCount = FALSE;
 static uint8 saveLimit = 2;
 static uint8 string[SIZE];
-static uint8 currentX;
-static uint8 currentCompass;
 
 /**Pointer to function containing all the possible states*/
 void (*fp[B3])() = {menu, b0, b1, b1a, b2};

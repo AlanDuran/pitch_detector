@@ -158,7 +158,6 @@
 #define PGEN_OFFSET 135
 #define P1_OFFSET 52
 #define P2_OFFSET 53
-
 #define CLAVE_DE_SOL 0X80
 #define SILENCIO_1 0x81
 #define SILENCIO_2 0x82
@@ -172,6 +171,8 @@
 #define WHITE 0x8e
 #define WHITE_SHARP 0x7e
 
+/**static array to store the necessary data that we need to send in order
+ * to print the following ASCII characters */
 static const sint16 ASCII_BIG[][15] =
 {
 		{0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}, // 20
@@ -297,21 +298,62 @@ static const sint16 ASCII_BIG[][15] =
 /** \brief It configures the LCD*/
 void LCD_ILI9341_init(void);
 
-/** \brief Writes a given color in every pixel*/
+/**
+ * 	\brief Writes a given color in every pixel of the screen
+ *
+ * 	\param[in] color RGB in 16 bit format.
+ */
 void LCD_ILI9341_fillScreen(uint16 color);
 
-void LCD_ILI9341_drawNLines(uint16, uint16, uint16);
+/**
+ * 	\brief Draws n number of consecutive lines
+ *
+ * 	\param[in] y initial height
+ * 	\param[in] nLines number of iterations
+ * 	\param[in] color RGB in 16 bit format.
+ */
+void LCD_ILI9341_drawNLines(uint16 y , uint16 nLines, uint16 color);
 
-void LCD_ILI9341_gotoXY(uint32, uint32);
+/** \brief It is used to indicate the place for writing a new character in the LCD.
+ * The values that x can take are from 0 to 239 and y can take values from 0 to 319
+ *
+ * 	\param[in] x row position
+ * 	\param[in] y column position
+ * */
+void LCD_ILI9341_gotoXY(uint32 x, uint32 y);
 
-void LCD_ILI9341_drawShape(uint16, uint16, uint16, uint16, uint16);
+/** \brief It allows draw a rectangle given initial and final coordinates
+ *
+ * 	\param[in] x initial position of shape
+ * 	\param[in] y initial position of shape
+ * 	\param[in] x2 final position of shape
+ * 	\param[in] y2 final position of shape
+ * */
+void LCD_ILI9341_drawShape(uint16 x, uint16 y, uint16 x2, uint16 y2, uint16 color);
 
-/** \brief It writes a byte in the LCD memory. The place of writting is the last place that was indicated by LCDNokia_gotoXY. In the reset state
- * the initial place is x=0 y=0*/
+/** \brief It writes a byte in the LCD memory. Position needs to be specified
+ *
+ * 	\param[in] x row position
+ * 	\param[in] y column position
+ * */
 void LCD_ILI9341_writeColor(uint16, uint16, uint16);
 
+/** \brief It writes a character of 16x16 pixels into the screen
+ *
+ * 	\param[in] x initial position of character
+ * 	\param[in] y initial position of character
+ * 	\param[in] color RGB in 16 bit format.
+ * 	\param[in] letter ASCII code of the character to print
+ * */
 void LCD_ILI9341_writeBigLetter(uint16 x, uint16 y, uint16 color, uint8 letter);
 
+/** \brief It writes a string into the LCD
+ *
+ * 	\param[in] x initial position of character
+ * 	\param[in] y initial position of character
+ * 	\param[in] color RGB in 16 bit format.
+ *  \param[in] uint8* Pointer to array with the string to print.
+ * */
 void LCD_ILI9341_sendString(uint16 x, uint16 y, uint16 color,uint8 *characters);
 
 /** \brief generates a delay with a blocking for function
@@ -319,6 +361,10 @@ void LCD_ILI9341_sendString(uint16 x, uint16 y, uint16 color,uint8 *characters);
  * It is used in the initialization routine*/
 void LCD_ILI9341_delay(void);
 
-void LCD_ILI9341_drawPartiture(uint8);
+/** \brief Draws 5 black lines to form a compass
+ *
+ * \param[in] position selects between upper or lower part of the screen
+ * */
+void LCD_ILI9341_drawPartiture(uint8 position);
 
 #endif /* LCD_ILI9341_H_ */
