@@ -321,7 +321,6 @@ uint8 PENTA_getTimeCounter()
 }
 
 
-
 uint8 PENTA_getTopOrBottom()
 {
 	/** Uses a modulo to avoid validation */
