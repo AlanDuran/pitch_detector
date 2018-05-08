@@ -93,6 +93,38 @@
 
 #define DIFF_DIV 2 /**< Divider of the differences */
 
+/** Defines for position of tempo beats */
+
+#define XPOS1_TEMPO1 30
+#define XPOS1_TEMPO2 86
+#define XPOS1_TEMPO3 142
+#define XPOS1_TEMPO4 198
+
+#define XPOS2_TEMPO1 40
+#define XPOS2_TEMPO2 96
+#define XPOS2_TEMPO3 152
+#define XPOS2_TEMPO4 208
+
+#define YPOS1_TEMPO 290
+#define YPOS2_TEMPO 300
+
+/** Defines for increments and limits of tempo */
+
+#define TEMPO_INC 5
+#define TEMPO_MAX 120
+#define TEMPO_MIN 60
+
+/** Page defines */
+
+#define MIN_COMP_PAGE 2
+#define SUB_CONST_PAGE 1
+#define NOTES_PER_PAGE 32
+
+#define SYM_LENGTH 14 /**< Lenght of our symbols for our font */
+#define SUB_TEMPO_COUNTER 1
+
+#define COMP_PER_PAGE 2
+
 
 /** Type of structure to identify the note with the fundamental frequency */
 

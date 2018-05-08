@@ -81,19 +81,19 @@ void PENTA_graph()
 		if(TRUE == savedNotes[saving_position].sharp)
 		{
 			LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
-									   savedNotes[saving_position].y_pos, 0, WHITE_SHARP);
+									   savedNotes[saving_position].y_pos, FALSE, WHITE_SHARP);
 		}
 		else
 		{
 			LCD_ILI9341_writeBigLetter(savedNotes[saving_position].x_pos,
-									   savedNotes[saving_position].y_pos, 0, WHITE);
+									   savedNotes[saving_position].y_pos, FALSE, WHITE);
 		}
 
 		/** Increase the position where info will be saved */
 		saving_position++;
 
 		/** If the menu is in the state of saving, stop after saving the desired ammount. */
-		if(B1a == getMenuState() && saving_position >= maxSaves*16)
+		if(B1a == getMenuState() && saving_position >= maxSaves*TEMPO_DIV)
 		{
 			stopInterrupts();
 		}
@@ -120,22 +120,23 @@ void PENTA_graphTempo()
 	switch(timeCounter%TEMPO_DIV)
 	{
 	case 0:
-		LCD_ILI9341_drawShape(30, 290, 40, 300, ILI9341_BLACK);
-		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_CYAN);
-		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_CYAN);
-		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_CYAN);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO1, YPOS1_TEMPO, XPOS2_TEMPO1, YPOS2_TEMPO, ILI9341_BLACK);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO2, YPOS1_TEMPO, XPOS2_TEMPO2, YPOS2_TEMPO, ILI9341_CYAN);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO3, YPOS1_TEMPO, XPOS2_TEMPO3, YPOS2_TEMPO, ILI9341_CYAN);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO4, YPOS1_TEMPO, XPOS2_TEMPO4, YPOS2_TEMPO, ILI9341_CYAN);
 		break;
 	case 4:
-		LCD_ILI9341_drawShape(86, 290, 96, 300, ILI9341_BLACK);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO2, YPOS1_TEMPO, XPOS2_TEMPO2, YPOS2_TEMPO, ILI9341_BLACK);
 		break;
 	case 8:
-		LCD_ILI9341_drawShape(142, 290, 152, 300, ILI9341_BLACK);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO3, YPOS1_TEMPO, XPOS2_TEMPO3, YPOS2_TEMPO, ILI9341_BLACK);
 		break;
 	case 12:
-		LCD_ILI9341_drawShape(198, 290, 208, 300, ILI9341_BLACK);
+		LCD_ILI9341_drawShape(XPOS1_TEMPO4, YPOS1_TEMPO, XPOS2_TEMPO4, YPOS2_TEMPO, ILI9341_BLACK);
 		break;
 	}
 }
+
 
 void PENTA_stopTimeMeassure()
 {
@@ -158,7 +159,7 @@ void PENTA_findNote(float32 freq)
 	float32 diff_greater;
 	float32 diff_lesser;
 	/**	Goes through all the possible notes */
-	for(uint8 index = 0; index < MAX_NOTES; index++)
+	for(uint8 index = FALSE; index < MAX_NOTES; index++)
 	{
 		/** Makes the subtractions */
 		diff_greater = freq - Notes[index].f0;
@@ -167,11 +168,11 @@ void PENTA_findNote(float32 freq)
 		/** If any of the subtractions result in a value in between 0 and
 		 * the difference, it means that is the approximated value.
 		 */
-		if (((diff_greater > 0) && (diff_greater < Notes[index].diff)) ||
-				((diff_lesser > 0) && (diff_lesser < Notes[index].diff)))
+		if (((diff_greater > FALSE) && (diff_greater < Notes[index].diff)) ||
+				((diff_lesser > FALSE) && (diff_lesser < Notes[index].diff)))
 		{
 			/** If it counted to 16, switch to top or bottom pentagram */
-			if(tempoCounter == 16)
+			if(tempoCounter == TEMPO_DIV)
 			{
 				/** If it was on bottom, screen should be refreshed */
 				if(TRUE == PENTA_getTopOrBottom())
@@ -207,28 +208,28 @@ void PENTA_findNote(float32 freq)
 void PENTA_increaseTempo()
 {
 	/** Validates if it is in range */
-	tempo = (tempo + 5 > 120)? 120 : tempo + 5;
+	tempo = (tempo + TEMPO_INC > TEMPO_MAX)? TEMPO_MAX : tempo + TEMPO_INC;
 	PENTA_restartPit();
 }
 
 void PENTA_decreaseTempo()
 {
 	/** Validates range */
-	tempo = (tempo - 5 < 60)? 60 : tempo - 5;
+	tempo = (tempo - TEMPO_INC < TEMPO_MIN)? TEMPO_MIN : tempo - TEMPO_INC;
 	PENTA_restartPit();
 }
 
 void PENTA_restartPit()
 {
 	/** Calculates period again and sends to pit */
-	float32 period = 60/tempo/4;
+	float32 period = SEC_MIN/tempo/TEMPO_ATTACK_DIV;
 	PIT_delay(PIT_1, SYSTEM_CLOCK, period);
 }
 
 void PENTA_clearSaves()
 {
 	/** Clears the save data with a loop */
-	for(uint8 index = 0; index < MAX_SAVED_NOTES; index++)
+	for(uint8 index = FALSE; index < MAX_SAVED_NOTES; index++)
 	{
 		savedNotes[index].x_pos = FALSE;
 		savedNotes[index].y_pos = FALSE;
@@ -241,10 +242,11 @@ void PENTA_clearSaves()
 	currPage = FALSE;
 }
 
+
 void PENTA_nextPage()
 {
 	/** print next page */
-	if(maxSaves/2 - 1 > currPage)
+	if(maxSaves/MIN_COMP_PAGE - SUB_CONST_PAGE > currPage)
 	{
 		currPage++;
 		PENTA_clearPage();
@@ -266,18 +268,18 @@ void PENTA_prevPage()
 void PENTA_printPage()
 {
 	/** Each page has 32 notes, so we start using this knowledge and the current page */
-	uint8 index = currPage*32;
-	for(; index < currPage*32 + 32; index++)
+	uint8 index = currPage*NOTES_PER_PAGE;
+	for(; index < currPage*NOTES_PER_PAGE + NOTES_PER_PAGE; index++)
 	{
 		if(TRUE == savedNotes[index].sharp)
 		{
 			LCD_ILI9341_writeBigLetter(savedNotes[index].x_pos,
-									   savedNotes[index].y_pos, 0, WHITE_SHARP);
+									   savedNotes[index].y_pos, FALSE, WHITE_SHARP);
 		}
 		else
 		{
 			LCD_ILI9341_writeBigLetter(savedNotes[index].x_pos,
-												   savedNotes[index].y_pos, 0, WHITE);
+												   savedNotes[index].y_pos, FALSE, WHITE);
 		}
 	}
 }
@@ -310,7 +312,7 @@ uint8 PENTA_getCurrPage()
 /** The length of our notes is 14, so calling this function, returns the position to be sent to the screen */
 uint8 PENTA_getTempoCounterPosition()
 {
-	return (tempoCounter - 1)*14;
+	return (tempoCounter - SUB_TEMPO_COUNTER)*SYM_LENGTH;
 }
 
 uint8 PENTA_getTimeCounter()
@@ -318,10 +320,12 @@ uint8 PENTA_getTimeCounter()
 	return timeCounter;
 }
 
+
+
 uint8 PENTA_getTopOrBottom()
 {
 	/** Uses a modulo to avoid validation */
-	return topOrBottom%2;
+	return topOrBottom%COMP_PER_PAGE;
 }
 
 uint8 PENTA_getClearPenta()
