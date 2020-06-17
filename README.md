@@ -1,1 +1,2 @@
-# pitch_detector
+# pitch detector based on autocorrelation
+Developed by a team of two for a FRDM-K64F in baremetal C with our own drivers. When this device is connected to a microphone and detects peaks in the voltage with its ADC, it takes a thousand samples at a constant period. With this samples we perform the autocorrelation of the signal to calculate its pitch and graph a musical score recorder in a color screen based in the module ILI9341 TFT.
